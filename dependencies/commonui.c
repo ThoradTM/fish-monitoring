@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "commonui.h"
-
+#include "../drivers/uart0.h"
 
 void parseFields(USER_DATA * data){
     int i = 0;
@@ -83,6 +83,7 @@ int strcmp2(char * str1, const char * str2)
 {
     int i = 0;
     while(true){
+
         if(str1[i] != str2[i])
         {
             return 1;

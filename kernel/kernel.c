@@ -417,7 +417,7 @@ void preempt(bool on){
         putsUart0("Preemption off\n");
     }
 }
-
+// there's a crash here with pidof
 _fn pidof(const char name[]){
     __asm("SVCCALL11: SVC #11");
     __asm("           MOV R0, R1"); // despite all my rage I'm still just a rat in a cage
@@ -488,7 +488,7 @@ void privRestartThread(){
     }
     restart = false; // Reset the flag
 }
-
+// there's a crash here with pidof
 void pidOfPriv(){
     uint32_t * psp = getPsp();
     uint8_t i;
