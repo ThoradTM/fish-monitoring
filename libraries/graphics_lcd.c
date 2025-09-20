@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "tm4c123gh6pm.h"
+#include "../dependencies/tm4c123gh6pm.h"
 #include "graphics_lcd.h"
 
 // Pin bitbands
@@ -324,150 +324,150 @@ void putsGraphicsLcd(char str[])
         putcGraphicsLcd(str[i++]);
 }
 
-
-void drawMenu()
-{
-    const char menu[MENU_ITEMS][MENU_COUNT][5] =
-    {
-        {"Kp  ", "K   ", "Yset", "FB  ", "Tcap"},
-        {"Ki  ", "Imax", "Yst1", "Ydiv", "Ymax"},
-        {"Kd  ", "Dead", "Yst2", "    ", "Umax"},
-        {"Ko  ", "    ", "    ", "    ", "    "}
-    };
-    uint8_t i;
-    for (i = 0; i < 4; i++)
-    {
-        setGraphicsLcdTextPosition(104,2*i);
-        putsGraphicsLcd((char*)menu[i][displayPage]);
-    }
-}
-
-void drawVariables()
-{
-    char str[5];
-    switch(displayPage)
-    {
-        case 0:
-            setGraphicsLcdTextPosition(104,1);
-            snprintf(str, sizeof(str), "%04"PRId32, coeffKp);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,3);
-            snprintf(str, sizeof(str), "%04"PRId32, coeffKi);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,5);
-            snprintf(str, sizeof(str), "%04"PRId32, coeffKd);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,7);
-            snprintf(str, sizeof(str), "%04"PRId32, coeffKo);
-            putsGraphicsLcd(str);
-            break;
-        case 1:
-            setGraphicsLcdTextPosition(104,1);
-            snprintf(str, sizeof(str), "%04"PRId32, coeffK);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,3);
-            snprintf(str, sizeof(str), "%04"PRId32, iMax);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,5);
-            snprintf(str, sizeof(str), "%04"PRId32, deadBand);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,7);
-            putsGraphicsLcd("    ");
-            break;
-        case 2:
-            setGraphicsLcdTextPosition(104,1);
-            snprintf(str, sizeof(str), "%04"PRId32, ySetPoint);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,3);
-            snprintf(str, sizeof(str), "%04"PRId32, yStep1);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,5);
-            snprintf(str, sizeof(str), "%04"PRId32, yStep2);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,7);
-            putsGraphicsLcd("    ");
-            break;
-        case 3:
-            setGraphicsLcdTextPosition(104,1);
-            if (fbMode == FB_ANALOG)
-                putsGraphicsLcd("AIN ");
-            if (fbMode == FB_QE)
-                putsGraphicsLcd("QE  ");
-            setGraphicsLcdTextPosition(104,3);
-            snprintf(str, sizeof(str), "%04"PRId32, yDiv);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,5);
-            putsGraphicsLcd("    ");
-            setGraphicsLcdTextPosition(104,7);
-            putsGraphicsLcd("    ");
-            break;
-        case 4:
-            setGraphicsLcdTextPosition(104,1);
-            snprintf(str, sizeof(str), "%04"PRId32, tCap);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,3);
-            snprintf(str, sizeof(str), "%04"PRId32, displayYMax);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,5);
-            snprintf(str, sizeof(str), "%04"PRId32, displayUMax);
-            putsGraphicsLcd(str);
-            setGraphicsLcdTextPosition(104,7);
-            putsGraphicsLcd("    ");
-            break;
-    }
-}
-
-void drawPlot()
-{
-    uint8_t x;
-    uint32_t y, yScaled;
-    int32_t uScaled;
-    // clear graphics area
-    drawGraphicsLcdRectangle(0, 0, 104, 64, CLEAR);
-
-    // draw plant output (y)
-    if (displayY)
-    {
-        // dashed line if in step mode
-        if (stepMode)
-        {
-            y = ((uint32_t)yStep1 * 64) / displayYMax;
-            for (x = 0; x < CAPTURE_SIZE; x++)
-            if (x & 4)
-                drawGraphicsLcdPixel(x, y, SET);
-            y = ((long)yStep2 * 64) / displayYMax;
-            for (x = 0; x < CAPTURE_SIZE; x++)
-            if (x & 4)
-                drawGraphicsLcdPixel(x, y, SET);
-        }
-        setGraphicsLcdTextPosition(90, 7);
-        putcGraphicsLcd('y');
-        for (x = 0; x < CAPTURE_SIZE; x++)
-        {
-            yScaled = captureBufferY[x];
-            yScaled = (yScaled * 64) / displayYMax;
-            if (yScaled > 63) yScaled = 63;
-                drawGraphicsLcdPixel(x, 63 - yScaled, SET);
-        }
-    }
-
-    // draw plant input (u)
-    if (displayU)
-    {
-        setGraphicsLcdTextPosition(84, 7);
-        putcGraphicsLcd('u');
-        for (x = 0; x < CAPTURE_SIZE; x++)
-        {
-            uScaled = captureBufferU[x];
-            uScaled = (uScaled * 32) / displayUMax;
-            if (uScaled > 32)
-                uScaled = 32;
-            if (uScaled < -31)
-                uScaled = -31;
-            drawGraphicsLcdPixel(x, 32 - uScaled, SET);
-        }
-    }
-}
+//
+//void drawMenu()
+//{
+//    const char menu[MENU_ITEMS][MENU_COUNT][5] =
+//    {
+//        {"Kp  ", "K   ", "Yset", "FB  ", "Tcap"},
+//        {"Ki  ", "Imax", "Yst1", "Ydiv", "Ymax"},
+//        {"Kd  ", "Dead", "Yst2", "    ", "Umax"},
+//        {"Ko  ", "    ", "    ", "    ", "    "}
+//    };
+//    uint8_t i;
+//    for (i = 0; i < 4; i++)
+//    {
+//        setGraphicsLcdTextPosition(104,2*i);
+//        putsGraphicsLcd((char*)menu[i][displayPage]);
+//    }
+//}
+//
+//void drawVariables()
+//{
+//    char str[5];
+//    switch(displayPage)
+//    {
+//        case 0:
+//            setGraphicsLcdTextPosition(104,1);
+//            snprintf(str, sizeof(str), "%04"PRId32, coeffKp);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,3);
+//            snprintf(str, sizeof(str), "%04"PRId32, coeffKi);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,5);
+//            snprintf(str, sizeof(str), "%04"PRId32, coeffKd);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,7);
+//            snprintf(str, sizeof(str), "%04"PRId32, coeffKo);
+//            putsGraphicsLcd(str);
+//            break;
+//        case 1:
+//            setGraphicsLcdTextPosition(104,1);
+//            snprintf(str, sizeof(str), "%04"PRId32, coeffK);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,3);
+//            snprintf(str, sizeof(str), "%04"PRId32, iMax);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,5);
+//            snprintf(str, sizeof(str), "%04"PRId32, deadBand);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,7);
+//            putsGraphicsLcd("    ");
+//            break;
+//        case 2:
+//            setGraphicsLcdTextPosition(104,1);
+//            snprintf(str, sizeof(str), "%04"PRId32, ySetPoint);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,3);
+//            snprintf(str, sizeof(str), "%04"PRId32, yStep1);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,5);
+//            snprintf(str, sizeof(str), "%04"PRId32, yStep2);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,7);
+//            putsGraphicsLcd("    ");
+//            break;
+//        case 3:
+//            setGraphicsLcdTextPosition(104,1);
+//            if (fbMode == FB_ANALOG)
+//                putsGraphicsLcd("AIN ");
+//            if (fbMode == FB_QE)
+//                putsGraphicsLcd("QE  ");
+//            setGraphicsLcdTextPosition(104,3);
+//            snprintf(str, sizeof(str), "%04"PRId32, yDiv);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,5);
+//            putsGraphicsLcd("    ");
+//            setGraphicsLcdTextPosition(104,7);
+//            putsGraphicsLcd("    ");
+//            break;
+//        case 4:
+//            setGraphicsLcdTextPosition(104,1);
+//            snprintf(str, sizeof(str), "%04"PRId32, tCap);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,3);
+//            snprintf(str, sizeof(str), "%04"PRId32, displayYMax);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,5);
+//            snprintf(str, sizeof(str), "%04"PRId32, displayUMax);
+//            putsGraphicsLcd(str);
+//            setGraphicsLcdTextPosition(104,7);
+//            putsGraphicsLcd("    ");
+//            break;
+//    }
+//}
+//
+//void drawPlot()
+//{
+//    uint8_t x;
+//    uint32_t y, yScaled;
+//    int32_t uScaled;
+//    // clear graphics area
+//    drawGraphicsLcdRectangle(0, 0, 104, 64, CLEAR);
+//
+//    // draw plant output (y)
+//    if (displayY)
+//    {
+//        // dashed line if in step mode
+//        if (stepMode)
+//        {
+//            y = ((uint32_t)yStep1 * 64) / displayYMax;
+//            for (x = 0; x < CAPTURE_SIZE; x++)
+//            if (x & 4)
+//                drawGraphicsLcdPixel(x, y, SET);
+//            y = ((long)yStep2 * 64) / displayYMax;
+//            for (x = 0; x < CAPTURE_SIZE; x++)
+//            if (x & 4)
+//                drawGraphicsLcdPixel(x, y, SET);
+//        }
+//        setGraphicsLcdTextPosition(90, 7);
+//        putcGraphicsLcd('y');
+//        for (x = 0; x < CAPTURE_SIZE; x++)
+//        {
+//            yScaled = captureBufferY[x];
+//            yScaled = (yScaled * 64) / displayYMax;
+//            if (yScaled > 63) yScaled = 63;
+//                drawGraphicsLcdPixel(x, 63 - yScaled, SET);
+//        }
+//    }
+//
+//    // draw plant input (u)
+//    if (displayU)
+//    {
+//        setGraphicsLcdTextPosition(84, 7);
+//        putcGraphicsLcd('u');
+//        for (x = 0; x < CAPTURE_SIZE; x++)
+//        {
+//            uScaled = captureBufferU[x];
+//            uScaled = (uScaled * 32) / displayUMax;
+//            if (uScaled > 32)
+//                uScaled = 32;
+//            if (uScaled < -31)
+//                uScaled = -31;
+//            drawGraphicsLcdPixel(x, 32 - uScaled, SET);
+//        }
+//    }
+//}
 
 
 void initGraphicsLcd()

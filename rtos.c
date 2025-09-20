@@ -43,6 +43,9 @@
 
 #include "processes/tasks.h"
 #include "processes/shell.h"
+#include "processes/turbidity.h"
+#include "processes/display.h"
+#include "processes/temperature.h"
 
 //-----------------------------------------------------------------------------
 // Main
@@ -79,15 +82,20 @@ int main(void)
     // Add required idle process at lowest priority
     ok =  createThread(idle, "Idle", 7, 512);
     // Add other processes
-    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
-    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
-    ok &= createThread(oneshot, "OneShot", 2, 1024);
-    ok &= createThread(readKeys, "ReadKeys", 6, 1024);
-    ok &= createThread(debounce, "Debounce", 6, 1024);
-    ok &= createThread(important, "Important", 0, 1024);
-    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
-    ok &= createThread(errant, "Errant", 6, 1024);
-    ok &= createThread(shell, "Shell", 6, 4096);
+//    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
+//    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
+//    ok &= createThread(oneshot, "OneShot", 2, 1024);
+//    ok &= createThread(readKeys, "ReadKeys", 6, 1024);
+//    ok &= createThread(debounce, "Debounce", 6, 1024);
+//    ok &= createThread(important, "Important", 0, 1024);
+//    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
+//    ok &= createThread(errant, "Errant", 6, 1024);
+
+    ok &= createThread(turbidityTask, "Turbidity", 0, 1024);
+    ok &= createThread(displayTask, "Display", 6, 1024);
+    ok &= createThread(tempTask, "Temperature", 6, 1024);
+
+    ok &= createThread(shell, "Shell", 6, 8192);
     ok &= createThread(restartShell, "RestartShell", 6, 512);
     putsUart0("Done!\n\n");
 
