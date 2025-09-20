@@ -5,6 +5,23 @@
  *      Author: clara
  */
 
+#include "turbidity.h"
+#include "../kernel/kernel.h"
+
+
+void initTurbidity()
+{
+
+}
+
+void turbidityTask()
+{
+    while(1)
+    {
+        sleep(500);
+    }
+}
+
 
 
 

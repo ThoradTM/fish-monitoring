@@ -35,6 +35,7 @@
 #include "mm.h"
 #include "kernel.h"
 #include "../drivers/uart0.h"
+#include "../drivers/pain.h"
 
 //-----------------------------------------------------------------------------
 // RTOS Defines and Kernel Variables

@@ -83,7 +83,7 @@ void initHw(void)
 //    TIMER1_IMR_R |= TIMER_IMR_TATOIM;                  // turn-on debounce interrupt
 
 
-    NVIC_EN0_R = 1 << (INT_TIMER1A-16);              // turn-on interrupt 37 (TIMER1A)
+    //NVIC_EN0_R = 1 << (INT_TIMER1A-16);              // turn-on interrupt 37 (TIMER1A)
 
 
     NVIC_CFG_CTRL_R |= NVIC_CFG_CTRL_DIV0;
@@ -107,7 +107,7 @@ void initHw(void)
     selectPinDigitalInput(PORTD, 7);
     selectPinDigitalInput(PORTD, 7);
     selectPinDigitalInput(PORTD, 6);
-    selectPinDigitalInput(PORTC, 7);
+    //selectPinDigitalInput(PORTC, 7);
     //selectPinDigitalInput(PORTB, 6);
     selectPinDigitalInput(PORTC, 6);
     selectPinDigitalInput(PORTC, 5);
@@ -135,7 +135,7 @@ void initHw(void)
 }
 
 void timer1Isr(){
-    GREEN_OB_LED ^= 1;
+    //GREEN_OB_LED ^= 1;
     TIMER1_ICR_R |= TIMER_ICR_TATOCINT;
 }
 
@@ -176,7 +176,7 @@ void flash4Hz(void)
 {
     while(true)
     {
-        setPinValue(GREEN_LED, !getPinValue(GREEN_LED));
+       // setPinValue(GREEN_LED, !getPinValue(GREEN_LED));
         sleep(125);
     }
 }

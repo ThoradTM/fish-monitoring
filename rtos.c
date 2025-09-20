@@ -56,6 +56,11 @@ int main(void)
     bool ok;
     // Initialize hardware
     initHw();
+    tempInit();
+
+
+
+
     //initWatchdog();
     // Setup UART0 baud rate
     setUart0BaudRate(115200, 40e6);
@@ -80,7 +85,7 @@ int main(void)
 
     putsUart0("Loading system tasks....\n");
     // Add required idle process at lowest priority
-    ok =  createThread(idle, "Idle", 7, 512);
+    ok =  createThread(idle, "Idle", 6, 512);
     // Add other processes
 //    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
 //    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
@@ -91,12 +96,12 @@ int main(void)
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
 //    ok &= createThread(errant, "Errant", 6, 1024);
 
-    ok &= createThread(turbidityTask, "Turbidity", 0, 1024);
-    ok &= createThread(displayTask, "Display", 6, 1024);
-    ok &= createThread(tempTask, "Temperature", 6, 1024);
+    //ok &= createThread(turbidityTask, "Turbidity", 6, 1024);
+    //ok &= createThread(displayTask, "Display", 6, 1024);
+    ok &= createThread(tempTask, "Temperature", 0, 1024);
 
     ok &= createThread(shell, "Shell", 6, 8192);
-    ok &= createThread(restartShell, "RestartShell", 6, 512);
+    //ok &= createThread(restartShell, "RestartShell", 6, 512);
     putsUart0("Done!\n\n");
 
     // TODO: Add code to implement a periodic timer and ISR
