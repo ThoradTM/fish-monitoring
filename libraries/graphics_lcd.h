@@ -18,6 +18,13 @@
 #ifndef GRAPHICS_LCD_H_
 #define GRAPHICS_LCD_H_
 
+typedef struct 
+{
+    uint8_t buffer[1024];
+    uint16_t txtIndex;
+    // Add more fields as needed
+} DisplayContext;
+
 enum operation
 {
     CLEAR,
