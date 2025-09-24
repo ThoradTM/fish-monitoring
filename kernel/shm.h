@@ -1,0 +1,18 @@
+/*
+ * shm.h
+ *
+ *  Created on: Sep 22, 2025
+ *      Author: clara
+ */
+
+#ifndef KERNEL_SHM_H_
+#define KERNEL_SHM_H_
+
+
+typedef struct _shm
+{
+    int shared;
+}shm;
+
+
+#endif /* KERNEL_SHM_H_ */

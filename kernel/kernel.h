@@ -97,41 +97,10 @@ void startRtos(void);
 bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackBytes);
 
 
-// System Calls
-void yield(void);
-void sleep(uint32_t tick);
-void lock(int8_t mutex);
-void unlock(int8_t mutex);
-void wait(int8_t semaphore);
-void post(int8_t semaphore);
-void setThreadPriority(_fn fn, uint8_t priority);
-void restartThread(_fn fn);
-void stopThread(_fn fn);
-void * mallocUnprivFromHeap(void * ptr);
-
-
 // ISRs
 void systickIsr(void);
 void pendSvIsr(void);
 void svCallIsr();
 
-// Unprivileged shell commands
-void sched(bool prio_on);
-void preempt(bool on);
-_fn pidof(const char name[]);
-void reboot();
-void stopThread(_fn fn);
-void ps(messenger * handler);
-void ipcs_mut();
-void meminfo(messenger * handler);
-void ipcs_sem();
-void saveShell();
-void restartThread(_fn fn);
-void nameOf(uint32_t pid, char name[]);
-void kill(_fn fn);
-void pibool(bool on);
-void setThreadPriority(_fn fn, uint8_t priority);
-void killnum(uint8_t index);
-void meminfoTask(messenger * handler);
 
 #endif

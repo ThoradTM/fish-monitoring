@@ -15,7 +15,7 @@
 // Device includes, defines, and assembler directives
 //-----------------------------------------------------------------------------
 
-/* GRADING NOTES:
+/* Problematic comments:
  *
  * Pin assignments are set as the DEFAULT for the file I was given.
  *
@@ -23,15 +23,13 @@
  *
  * The TCB has been moved to a header file so mm.c can write allocated addresses to the TCB.
  *
- *
- *
+ * Weird pkill behaviour Above problem
  *
  *
  */
 
-
 #include <stdint.h>
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "mm.h"
 #include "kernel.h"
 #include "../drivers/uart0.h"
@@ -41,7 +39,7 @@
 // RTOS Defines and Kernel Variables
 //-----------------------------------------------------------------------------
 
-// mutex
+// Mutex
 typedef struct _mutex
 {
     bool lock;
@@ -52,7 +50,8 @@ typedef struct _mutex
 mutex mutexes[MAX_MUTEXES];
 
 uint8_t lockedBy = 0;
-// semaphore
+
+// Semaphore
 typedef struct _semaphore
 {
     uint8_t count;
@@ -61,13 +60,19 @@ typedef struct _semaphore
 } semaphore;
 semaphore semaphores[MAX_SEMAPHORES];
 
-// task states
-#define STATE_INVALID           0 // no task
-#define STATE_STOPPED           1 // stopped, all memory freed
-#define STATE_READY             2 // has run, can resume at any time
-#define STATE_DELAYED           3 // has run, but now awaiting timer
-#define STATE_BLOCKED_MUTEX     4 // has run, but now blocked by semaphore
-#define STATE_BLOCKED_SEMAPHORE 5 // has run, but now blocked by semaphore
+// SHM
+void * shm_struct_ptr;
+uint64_t shm_srd;
+
+enum
+{
+    STATE_INVALID,            // no task
+    STATE_STOPPED,            // stopped, all memory freed
+    STATE_READY,              // has run, can resume at any time
+    STATE_DELAYED,            // has run, but now awaiting timer
+    STATE_BLOCKED_MUTEX,      // has run, but now blocked by semaphore
+    STATE_BLOCKED_SEMAPHORE   // has run, but now blocked by semaphore
+};
 
 // task
 uint8_t taskCurrent = 0;          // index of last dispatched task
@@ -274,6 +279,8 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
                 tcb[i].spInit = tcb[i].sp; // Useful for debugging
                 tcb[i].srd = initSrdWindow(stackBytes); // Doing this for now, need to figure out a better handler for SRD masks later.
 
+                // Added shared memory space
+                //tcb[i].srd |=
 
 
                 // I'll enable mutexes when I get there
@@ -330,150 +337,6 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
     taskCurrent = temp;
     return ok;
 }
-
-// Standard System Calls
-
-void yield(void)
-{
-    __asm("SVCCALL1: SVC #1");
-}
-
-
-void sleep(uint32_t tick)
-{
-    __asm("SVCCALL2: SVC #2");
-}
-
-
-void lock(int8_t mutex)
-{
-    __asm("SVCCALL3: SVC #3");
-}
-
-
-void unlock(int8_t mutex)
-{
-    __asm("SVCCALL4: SVC #4");
-}
-
-
-void wait(int8_t semaphore)
-{
-    __asm("SVCCALL5: SVC #5");
-}
-
-
-void post(int8_t semaphore)
-{
-    __asm("SVCCALL6: SVC #6");
-}
-
-void * mallocUnprivFromHeap(void * ptr){
-    __asm("SVCCALL7: SVC #7");
-    return ptr;
-}
-
-void stopThread(_fn fn)
-{
-    __asm("SVCCALL14: SVC #14");
-}
-void restartThread(_fn fn)
-{
-    __asm("SVCCALL17: SVC #17");
-}
-void setThreadPriority(_fn fn, uint8_t priority)
-{
-    __asm("SVCCALL19: SVC #19");
-}
-
-
-
-
-
-//
-// Shell System Calls (or handlers for more advanced functionality)
-//
-
-// difference of time of tasks vs time of kernel for total time
-// Read last complete set only (A or B) after the complete set is frozen
-
-
-void sched(bool prio_on){
-    __asm("SVCCALL9: SVC #9");
-    if(prio_on){
-        putsUart0("Scheduler Priority\n");
-
-    }
-    else{
-        putsUart0("Scheduler Round Robin\n");
-    }
-}
-
-void preempt(bool on){
-    __asm("SVCCALL10: SVC #10");
-    if(on){
-        putsUart0("Preemption on\n");
-    }
-    else{
-        putsUart0("Preemption off\n");
-    }
-}
-// there's a crash here with pidof
-_fn pidof(const char name[]){
-    __asm("SVCCALL11: SVC #11");
-    __asm("           MOV R0, R1"); // despite all my rage I'm still just a rat in a cage
-    __asm("           BX LR");
-    return 0; // Who says I can't just return.... Twice... (I know I could have made an assembly file I'm lazy)
-}
-
-void ipcs_sem(){
-    __asm("SVCCALL12: SVC #12");
-}
-
-void reboot(){
-    __asm("SVCCALL13: SVC #13");
-}
-
-void killnum(uint8_t index){
-    __asm("SVCCALL21: SVC #21");
-}
-
-void ps(messenger * handler){
-    __asm("SVCCALL15: SVC #15");
-}
-
-void ipcs_mut(messenger * handler){
-    __asm("SVCCALL16: SVC #16");
-}
-
-void meminfo(messenger * handler){
-    __asm("SVCCALL8: SVC #8");
-}
-
-void meminfoTask(messenger * handler){
-    __asm("SVCCALL23: SVC #23");
-}
-
-void nameOf(uint32_t pid, char name[])
-{
-    __asm("SVCCALL18: SVC #18");
-    putsUart0(name);
-}
-
-void saveShell(){
-    __asm("SVCCALL20: SVC #20");
-}
-
-void pibool(bool on){ // priority inheritance (last thing I need to worry about)
-    __asm("SVCCALL22: SVC #22");
-    if(on){
-        putsUart0("PI Enabled\n");
-    }
-    else{
-        putsUart0("PI Disabled\n");
-    }
-};
-
 
 // Privileged function helpers
 
@@ -704,6 +567,13 @@ void pendSvIsr(void) // record
         tcb[taskCurrent].pingPongB += tcb[taskCurrent].timeDifferential;
     }
 
+    //    if(pingPong){ // Good approximation of kernel time minus the very fast stuff
+    //        pingPongA += TIMER5_TAV_R - accumulator;
+    //    }
+    //    else{
+    //        pingPongB += TIMER5_TAV_R - accumulator;
+    //    }
+
     taskCurrent = rtosScheduler(); // Grab the next task
 
     tcb[taskCurrent].timeDifferential = timer;
@@ -718,38 +588,90 @@ void pendSvIsr(void) // record
     setPsp(tcb[taskCurrent].sp); // Set the new PSP
 }
 
+enum
+{
+    START_RTOS,         // 0
+    YIELD,              // 1
+    SLEEP,              // 2
+    LOCK_MUTEX,         // 3
+    UNLOCK_MUTEX,       // 4
+    WAIT,               // 5
+    POST,               // 6
+    MALLOC,             // 7
+    MEMINFO,            // 8
+    SET_SCHED,          // 9
+    SET_PREEMPT,        // 10
+    PIDOF,              // 11
+    IPCS,               // 12
+    REBOOT,             // 13
+    STOP_THREAD,        // 14
+    PS,                 // 15
+    IPCS_MUT,           // 16
+    RESTART_THREAD,     // 17
+    NAMEOF,             // 18
+    SET_PRIO,           // 19
+    REBOOT_SHELL,       // 20
+    KILL_NUM,           // 21
+    SET_INHERIT_PRIO,   // 22
+    MEMINFO_TASK,       // 23
+    SHM_HANDLE,         // 24
+    SHM_PERMS,          // 25
+    SHM_DEL_PERMS       // 26
+};
+
 bool svcUnlock = true; // Used to lock the first call to avoid an illegal call
 
 void svCallIsr() //  fixed the other stuff, but this function is still kinda inefficient
 {
-    //uint8_t svcNumber = getSvc(); // From arm documentation
+    // From arm documentation
     uint8_t svcNumber = ((char *)getPsp()[6])[-2];
+
     uint8_t callArgs = *((uint8_t *)getPsp());
     uint32_t callArgs32 = *((uint32_t *)getPsp());
+    messenger * handler = ((messenger *)callArgs32);
     uint8_t i;
     uint8_t j;
     uint32_t totalTime = 0;
-    //uint32_t accumulator = TIMER5_TAV_R;
-    //static uint8_t svcNumber = 0;
-    switch(svcNumber){ // Trace back the stack and fetch the call number, then take a path based on it.
-        case 0: // Start RTOS
+
+    // Trace back the stack and fetch the call number, then take a path based on it.
+
+    switch(svcNumber)
+    {
+        case(START_RTOS): // Start RTOS
+        {
             if(svcUnlock){
                 tcb[taskCurrent].sp = popStart(tcb[taskCurrent].sp); // Pop the old context and restore the updated sp
                 setPsp(tcb[taskCurrent].sp); // Set the new PSP
                 applySramAccessMask(tcb[taskCurrent].srd);
+
+                // Initial first pass at SHM. Will build a function to request access (SVC)
+                // It will check a mutex lock before passing the shm
+                //shm_struct_ptr = mallocFromHeap(1024) + 512;
+                //shm_srd = initSrdWindow(0);
+
+
                 svcUnlock = false;
                 NVIC_ST_CTRL_R |= NVIC_ST_CTRL_ENABLE; // Moved this here to prevent a pendSv call before the OS is ready
             }
             break;
-        case 1: // Yield
+        }
+
+        case(YIELD): // Yield
+        {
             pendSv();
             break;
-        case 2: // Sleep
+        }
+
+        case(SLEEP): // Sleep
+        {
             tcb[taskCurrent].ticks = *(getPsp()); // Current R0 is the first function pass to sleep, SVCARGS is the PSP.
             tcb[taskCurrent].state = STATE_DELAYED; // Set the process state to delayed
             pendSv(); // Switch tasks
             break;
-        case 3: // Lock
+        }
+
+        case(LOCK_MUTEX): // Lock
+        {
             if(!mutexes[callArgs].lock){ // PSP is pointing to R0 of last task which contains the passed mutex number
                 mutexes[callArgs].lock = true;
                 mutexes[callArgs].lockedBy = taskCurrent;
@@ -775,42 +697,54 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
                 pendSv(); // Switch tasks so we don't return and illegally access the item
             }
             break;
-        case 4: //Unlock
-            if(mutexes[callArgs].lock){ // PSP is pointing to R0 of last task which contains the passed mutex number
+        }
+
+        case(UNLOCK_MUTEX): // Unlock
+        {
+            if(mutexes[callArgs].lock)
+            { // PSP is pointing to R0 of last task which contains the passed mutex number
                 mutexes[callArgs].lock = false;
                 lockedBy = 0;
                 mutexes[callArgs].lockedBy = 0;
-                if(tcb[mutexes[callArgs].processQueue[0]].state == STATE_BLOCKED_MUTEX){
+                if(tcb[mutexes[callArgs].processQueue[0]].state == STATE_BLOCKED_MUTEX)
+                {
                     uint8_t taskNum = mutexes[callArgs].processQueue[0];
                     mutexes[callArgs].lock = true; // Give it the mutex
                     mutexes[callArgs].lockedBy = taskNum;
                     lockedBy = taskNum;
                     tcb[taskNum].state = STATE_READY;
                     uint8_t i;
-                    for(i = MAX_MUTEX_QUEUE_SIZE; i > 0; i--){ // slide the queue down
+                    for(i = MAX_MUTEX_QUEUE_SIZE; i > 0; i--)
+                    { // slide the queue down
                         mutexes[callArgs].processQueue[i-1] = mutexes[callArgs].processQueue[i];
                         mutexes[callArgs].processQueue[i] = 0;
                     }
                     mutexes[callArgs].queueSize--;
-                    if(priorityInheritance && (tcb[taskCurrent].boosted == true)){
+                    if(priorityInheritance && (tcb[taskCurrent].boosted == true))
+                    {
                         tcb[taskCurrent].priority = tcb[taskCurrent].currentPriority;
                         tcb[taskCurrent].boosted = false;
                     }
                 }
             }
             break;
-        case 5: // Wait
-            if(semaphores[callArgs].count){
-                semaphores[callArgs].count--;
-            }
-            else{
+        }
+
+        case(WAIT): // Wait
+        {
+            if(semaphores[callArgs].count) semaphores[callArgs].count--;
+            else
+            {
                 semaphores[callArgs].processQueue[semaphores[callArgs].queueSize] = taskCurrent;
                 tcb[taskCurrent].state = STATE_BLOCKED_SEMAPHORE;
                 semaphores[callArgs].queueSize++;
                 pendSv();
             }
             break;
-        case 6: // Post
+        }
+
+        case(POST): // Post
+        {
                 semaphores[callArgs].count++;
 //                if(priorityInheritance && tcb[currentTask].boosted){
 //                    tcb[currentTask].priority = tcb[currentTask].currentPriority;
@@ -840,41 +774,67 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
 //                }
 //                semaphores[callArgs].count++;
 //            break;
-            break;
-        case 7:
+        }break;
+
+        case(MALLOC):
+        {
             *((uint32_t *)getPsp()) = (uint32_t)mallocFromHeap(callArgs32);
             tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
             tcb[taskCurrent].srd |= ~initSrdWindow(0); // Adding the new memory section, this function input doesn't matter
             tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
             applySramAccessMask(tcb[taskCurrent].srd);
             break;
-        case 8: // meminfo
-            ((messenger *)callArgs32)->words[0] = (uint32_t)systemmap.sectors; // ungodly creation
-            ((messenger *)callArgs32)->words[1] = (uint32_t)(systemmap.sectors >> 32);
-            ((messenger *)callArgs32)->words[2] = (uint32_t)systemmap.ownership[((messenger *)callArgs32)->i];
+        }
+
+        case(MEMINFO): // Meminfo
+        {
+            handler->words[0] = (uint32_t)systemmap.sectors;
+            handler->words[1] = (uint32_t)(systemmap.sectors >> 32);
+            handler->words[2] = (uint32_t)systemmap.ownership[handler->i];
             break;
-        case 9:
+        }
+
+        case(SET_SCHED):
+        {
             priorityScheduler = *((uint32_t *)getPsp());
             break;
-        case 10:
+        }
+
+        case(SET_PREEMPT):
+        {
             preemption = *((uint32_t *)getPsp());
             break;
-        case 11:
+        }
+
+        case(PIDOF):
+        {
             pidOfPriv();
             break;
-        case 12:
-            ((messenger *)callArgs32)->words[0] = (uint32_t)semaphores[((messenger *)callArgs32)->i].count; // ungodly creation
-            ((messenger *)callArgs32)->words[1] = (uint32_t)tcb[semaphores[((messenger *)callArgs32)->i].processQueue[0]].pid;
-            ((messenger *)callArgs32)->words[2] = (uint32_t)tcb[semaphores[((messenger *)callArgs32)->i].processQueue[1]].pid;
+        }
+
+        case(IPCS):
+        {
+            handler->words[0] = (uint32_t)semaphores[handler->i].count;
+            handler->words[1] = (uint32_t)tcb[semaphores[handler->i].processQueue[0]].pid;
+            handler->words[2] = (uint32_t)tcb[semaphores[handler->i].processQueue[1]].pid;
             break;
-        case 13:
+        }
+
+        case(REBOOT):
+        {
             NVIC_APINT_R = NVIC_APINT_VECTKEY | NVIC_APINT_SYSRESETREQ;
             break;
-        case 14:
+        }
+
+        case(STOP_THREAD):
+        {
             stopThreadPriv((_fn)(*((uint32_t *)getPsp())));
             break;
-        case 15: // Options: Copy a specific segment, or send it frame by frame.
-            if((((messenger *)callArgs32)->i) == 0){
+        }
+
+        case(PS): // Options: Copy a specific segment, or send it frame by frame.
+        {
+            if((handler->i) == 0){
                 if(!pingPong){
                     for(i = 0; i < taskCount; i++){
                         totalTime += tcb[i].pingPongA;
@@ -885,37 +845,51 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
                         totalTime += tcb[i].pingPongB;
                     }
                 }
-                ((messenger *)callArgs32)->words[3] = totalTime; // Total time to send to PS
+                handler->words[3] = totalTime; // Total time to send to PS
             }
 
-            ((messenger *)callArgs32)->words[0] = (uint32_t)tcb[((messenger *)callArgs32)->i].pid; // ungodly creation PID
-            ((messenger *)callArgs32)->words[1] = tcb[((messenger *)callArgs32)->i].state;  // STATE
-            ((messenger *)callArgs32)->words[2] = tcb[((messenger *)callArgs32)->i].priority; // PRIO
+            handler->words[0] = (uint32_t)tcb[handler->i].pid;
+            handler->words[1] = tcb[handler->i].state;  // STATE
+            handler->words[2] = tcb[handler->i].priority; // PRIO
 
             if(!pingPong){ // Prevent this from running halfway through a flip
-                ((messenger *)callArgs32)->words[4] = tcb[((messenger *)callArgs32)->i].pingPongA;
+                handler->words[4] = tcb[handler->i].pingPongA;
             }
             else{
-                ((messenger *)callArgs32)->words[4] = tcb[((messenger *)callArgs32)->i].pingPongB;
+                handler->words[4] = tcb[handler->i].pingPongB;
             }
             break;
-        case 16:
-            ((messenger *)callArgs32)->words[0] = (uint32_t)mutexes[((messenger *)callArgs32)->i].lock; // ungodly creation
-            ((messenger *)callArgs32)->words[1] = (uint32_t)tcb[mutexes[((messenger *)callArgs32)->i].lockedBy].pid;
-            ((messenger *)callArgs32)->words[2] = (uint32_t)tcb[mutexes[((messenger *)callArgs32)->i].processQueue[0]].pid;
-            ((messenger *)callArgs32)->words[3] = (uint32_t)tcb[mutexes[((messenger *)callArgs32)->i].processQueue[1]].pid;
+        }
 
+        case(IPCS_MUT):
+        {
+            handler->words[0] = (uint32_t)mutexes[handler->i].lock;
+            handler->words[1] = (uint32_t)tcb[mutexes[handler->i].lockedBy].pid;
+            handler->words[2] = (uint32_t)tcb[mutexes[handler->i].processQueue[0]].pid;
+            handler->words[3] = (uint32_t)tcb[mutexes[handler->i].processQueue[1]].pid;
             break;
-        case 17:
+        }
+
+        case(RESTART_THREAD):
+        {
             privRestartThread();
             break;
-        case 18:
+        }
+
+        case(NAMEOF):
+        {
             nameOfPriv();
             break;
-        case 19:
+        }
+
+        case(SET_PRIO):
+        {
             setThreadPrioPriv((_fn)(*((uint32_t *)getPsp())), *((uint32_t *)getPsp() + 1));
             break;
-        case 20:
+        }
+
+        case(REBOOT_SHELL):
+        {
             i = 0;
             for(j = 0; j < MAX_TASKS; j++){
                 if(!strcmp1("Shell", tcb[i].name) && tcb[i].state == STATE_READY){
@@ -933,32 +907,69 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
                 }
             }
             break;
-        case 21:
+        }
+
+        case(KILL_NUM):
+        {
             stopThreadIndexPriv(callArgs);
             break;
-        case 22:
+        }
+
+        case SET_INHERIT_PRIO:
+        {
             priorityInheritance = *((uint32_t *)getPsp());
             break;
-        case 23:
-            ((messenger *)callArgs32)->words[0] = (uint32_t)tcb[((messenger *)callArgs32)->i].pid; // ungodly creation
-            ((messenger *)callArgs32)->words[1] = (uint32_t)tcb[((messenger *)callArgs32)->i].allocations[0];
-            ((messenger *)callArgs32)->words[2] = (uint32_t)tcb[((messenger *)callArgs32)->i].allocations[1];
-            ((messenger *)callArgs32)->words[3] = (uint32_t)tcb[((messenger *)callArgs32)->i].allocations[2];
-            ((messenger *)callArgs32)->words[4] = tcb[((messenger *)callArgs32)->i].stackBytes;
+        }
+
+        case(MEMINFO_TASK):
+        {
+            handler->words[0] = (uint32_t)tcb[handler->i].pid;
+            handler->words[1] = (uint32_t)tcb[handler->i].allocations[0];
+            handler->words[2] = (uint32_t)tcb[handler->i].allocations[1];
+            handler->words[3] = (uint32_t)tcb[handler->i].allocations[2];
+            handler->words[4] = tcb[handler->i].stackBytes;
             break;
+        }
+
+        case(SHM_HANDLE):
+        {
+            // I can copy the mutex code into here and have it perform all of that work on the back end.
+            // No reason to re-write code.
+            // This will require the handle to be closed out manually via a mutex post call.
+            // Another way to do this is more messenger structs which is an option. That might be more complicated.
+            // Even easier, make it an un-exposed service call and build a library that keeps track of a single mutex
+            // As well as the masks, so a user can post (write to field x with x), it will wait on the sem in the lib,
+            // then the write/read will pass.
+
+            // Call order: Lock SHM mutex, grab pointer, apply access mask, perform operation, remove access mask,
+            // unlock mutex.
+
+            *((uint32_t *)getPsp()) = (uint32_t *)shm_struct_ptr;
+            break;
+        }
+
+        // Lock SHM
+        case(SHM_PERMS):
+        {
+            tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
+            tcb[taskCurrent].srd |= ~shm_srd; // From malloc above
+            tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
+            applySramAccessMask(tcb[taskCurrent].srd);
+            break;
+        }
+
+        // Unlock SHM
+        case(SHM_DEL_PERMS):
+        {
+            tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
+            tcb[taskCurrent].srd &= shm_srd; // Inversion of the above to remove access
+            tcb[taskCurrent].srd = ~tcb[taskCurrent].srd;
+            applySramAccessMask(tcb[taskCurrent].srd);
+            break;
+        }
+
         default:
             break;
     }
-// Check restart flash4hz check?
-// Check mutex clear in stop task Good
-// Change semaphore counts ????????????????????????????????????
-// Weird pkill behaviour Above problem
-
-//    if(pingPong){ // Good approximation of kernel time minus the very fast stuff
-//        pingPongA += TIMER5_TAV_R - accumulator;
-//    }
-//    else{
-//        pingPongB += TIMER5_TAV_R - accumulator;
-//    }
 }
 

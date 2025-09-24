@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "drivers/uart0.h"
-#include "dependencies/wait.h"
-#include "dependencies/tm4c123gh6pm.h"
+#include "libraries/wait.h"
+#include "libraries/tm4c123gh6pm.h"
 #include "kernel/faults.h"
 #include "kernel/kernel.h"
 #include "processes/tasks.h"

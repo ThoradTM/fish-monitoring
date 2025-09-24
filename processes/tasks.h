@@ -15,8 +15,6 @@
 // Subroutines
 //-----------------------------------------------------------------------------
 
-void initHw(void);
-
 void idle(void);
 void flash4Hz(void);
 void oneshot(void);

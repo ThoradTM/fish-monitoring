@@ -14,8 +14,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../dependencies/tm4c123gh6pm.h"
-#include "../dependencies/wait.h"
+#include "../libraries/tm4c123gh6pm.h"
+#include "../libraries/wait.h"
 
 #include "../kernel/mm.h"
 #include "../kernel/kernel.h"
@@ -52,88 +52,6 @@
 // Subroutines
 //-----------------------------------------------------------------------------
 
-// Initialize Hardware
-// REQUIRED: Add initialization for blue, orange, red, green, and yellow LEDs
-//           Add initialization for 6 pushbuttons
-void initHw(void)
-{
-    initSystemClockTo40Mhz();
-    // Setup LEDs and pushbuttons
-    SYSCTL_RCGCGPIO_R = SYSCTL_RCGCGPIO_R5 | SYSCTL_RCGCGPIO_R4 | SYSCTL_RCGCGPIO_R0;
-    _delay_cycles(3);
-    initUart0();
-    initPain();
-
-    SYSCTL_RCGCTIMER_R |= (SYSCTL_RCGCTIMER_R1 | SYSCTL_RCGCTIMER_R5);
-
-    setUart0BaudRate(115200,40000000); // Set baud rate to project spec
-    // Configure LED pins
-//    GPIO_PORTF_DIR_R |= GREEN_LED_MASK | RED_LED_MASK;  // bits 1 and 3 are outputs
-//    GPIO_PORTF_DR2R_R |= GREEN_LED_MASK | RED_LED_MASK; // set drive strength to 2mA (not needed since default configuration -- for clarity)
-//    GPIO_PORTF_DEN_R |= GREEN_LED_MASK | RED_LED_MASK;  // enable LEDs
-
-
-
-//    TIMER1_CTL_R &= ~(TIMER_CTL_TAEN);                 // turn-off timer before reconfiguring
-//    TIMER1_CFG_R = TIMER_CFG_32_BIT_TIMER;           // configure as 32-bit timer (A+B)
-//    TIMER1_TAMR_R = TIMER_TAMR_TAMR_PERIOD;        // configure for periodic mode (count down)
-//    TIMER1_TAILR_R = 40000000;                         // set load value to 10e5 for 25 ms interrupt rate
-//    TIMER1_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
-//
-//    TIMER1_IMR_R |= TIMER_IMR_TATOIM;                  // turn-on debounce interrupt
-
-
-    //NVIC_EN0_R = 1 << (INT_TIMER1A-16);              // turn-on interrupt 37 (TIMER1A)
-
-
-    NVIC_CFG_CTRL_R |= NVIC_CFG_CTRL_DIV0;
-
-
-    NVIC_SYS_HND_CTRL_R |= (NVIC_SYS_HND_CTRL_USAGE | NVIC_SYS_HND_CTRL_BUS | NVIC_SYS_HND_CTRL_MEM);
-
-    NVIC_ST_CTRL_R |= NVIC_ST_CTRL_CLK_SRC | NVIC_ST_CTRL_INTEN;
-    NVIC_ST_RELOAD_R = 39999;
-    NVIC_ST_CURRENT_R = 0;
-
-
-
-    enablePort(PORTD);
-    enablePort(PORTC);
-    enablePort(PORTB);
-
-    setPinCommitControl(PORTD, 7);
-
-
-    selectPinDigitalInput(PORTD, 7);
-    selectPinDigitalInput(PORTD, 7);
-    selectPinDigitalInput(PORTD, 6);
-    //selectPinDigitalInput(PORTC, 7);
-    //selectPinDigitalInput(PORTB, 6);
-    selectPinDigitalInput(PORTC, 6);
-    selectPinDigitalInput(PORTC, 5);
-    selectPinDigitalInput(PORTC, 4);
-
-    selectPinPushPullOutput(PORTA, 2);
-    selectPinPushPullOutput(PORTA, 3);
-    selectPinPushPullOutput(PORTA, 4);
-    selectPinPushPullOutput(PORTE, 0);
-    selectPinPushPullOutput(PORTF, 2);
-
-    enablePinPullup(PORTD, 7);
-    enablePinPullup(PORTD, 6);
-    enablePinPullup(PORTC, 7);
-    enablePinPullup(PORTC, 6);
-    enablePinPullup(PORTC, 5);
-    enablePinPullup(PORTC, 4);
-
-    // Power-up flash
-    setPinValue(GREEN_LED, 1);
-    waitMicrosecond(250000);
-    setPinValue(GREEN_LED, 0);
-    waitMicrosecond(250000);
-
-}
-
 void timer1Isr(){
     //GREEN_OB_LED ^= 1;
     TIMER1_ICR_R |= TIMER_ICR_TATOCINT;
@@ -153,9 +71,14 @@ void idle(void)
 {
     while(true)
     {
-        setPinValue(ORANGE_LED, 0); // Reversed these to fix the LED being stuck on, doesn't change how the code works across systems :)
+//        setPinValue(ORANGE_LED, 0); // Reversed these to fix the LED being stuck on, doesn't change how the code works across systems :)
+//        waitMicrosecond(1000);
+//        setPinValue(ORANGE_LED, 1);
+
+        setPinValue(GREEN_LED, 1);
         waitMicrosecond(1000);
-        setPinValue(ORANGE_LED, 1);
+        setPinValue(GREEN_LED, 0);
+
         yield();
     }
 }

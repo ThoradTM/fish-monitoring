@@ -5,10 +5,10 @@
  *      Author: Daniel
  */
 
-#include "../dependencies/commonui.h"
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/commonui.h"
+#include "../libraries/tm4c123gh6pm.h"
 
-#include "../kernel/kernel.h"
+#include "../kernel/servicecalls.h"
 
 #include "../drivers/uart0.h"
 #include "../drivers/pain.h"
@@ -61,7 +61,6 @@ void shell(){
     messenger handler;
     putsUart0("\x1B[38;5;117m\nShell: \x1B[0m");
     while(true){
-
         data.fieldCount = 0;
         getStringUart(&data);
         parseFields(&data);
@@ -284,7 +283,7 @@ void shell(){
         }
         else if(isCommand(&data, "pkill", 2)){
             char * command = getFieldString(&data, 2);
-//            stopThread(pidof(command));
+            stopThread(pidof(command));
         }
         else if(isCommand(&data, "preempt", 2)){
             char * command = getFieldString(&data, 2);
@@ -306,7 +305,7 @@ void shell(){
         }
         else if(isCommand(&data, "pidof", 2)){
             char * command = getFieldString(&data, 2);
-//            putiUart0((uint32_t)pidof(command));
+            putiUart0((uint32_t)pidof(command));
         }
         else if(isCommand(&data, "nameof", 2)){
             uint32_t command = getFieldInteger(&data, 2);
@@ -315,10 +314,10 @@ void shell(){
         }
         else{
             char * command = getFieldString(&data, 1);
-//            _fn pid = pidof(command); // Prevents some crashing
-//            if(pid){
-//                restartThread(pid);
-//            }
+            _fn pid = pidof(command); // Prevents some crashing
+            if(pid){
+                restartThread(pid);
+            }
         }
         putsUart0("\x1B[38;5;117m\nShell: \x1B[0m");
     }

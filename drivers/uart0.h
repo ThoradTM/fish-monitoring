@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../dependencies/commonui.h"
+#include "../libraries/commonui.h"
 //-----------------------------------------------------------------------------
 // Subroutines
 //-----------------------------------------------------------------------------

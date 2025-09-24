@@ -20,9 +20,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "uart0.h"
-#include "../dependencies/commonui.h"
+#include "../libraries/commonui.h"
 
 // PortA masks
 #define UART_TX_MASK 2

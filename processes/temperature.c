@@ -1,8 +1,10 @@
 #include "temperature.h"
 #include "../kernel/kernel.h"
 #include "../drivers/pain.h"
-#include "../dependencies/wait.h"
+#include "../libraries/wait.h"
 #include "../drivers/gpio.h"
+#include "../kernel/shm.h"
+#include "../drivers/uart0.h"
 
 
 void tempInit()
@@ -21,22 +23,28 @@ inline writeOne()
     setLow();
     waitMicrosecond(12);
     setHigh();
-    waitMicrosecond(48);
+    waitMicrosecond(53);
 }
 
 inline writeZero()
 {
     setLow();
-    waitMicrosecond(60);
+    waitMicrosecond(65);
     setHigh();
     waitMicrosecond(1);
 }
 
 inline uint8_t readDigit()
 {
-    uint8_t retval;
-    waitMicrosecond(30);
-    retval = getPinValue(PORTC, 7);
+    uint8_t retval = 0;
+    setLow();
+    waitMicrosecond(12);
+    setHigh();
+    selectPinDigitalInput(PORTC, 7);
+    waitMicrosecond(5);
+    if(getPinValue(PORTC, 7)) retval = 0x01;
+    selectPinPushPullOutput(PORTC, 7);
+    waitMicrosecond(45);
     return retval;
 }
 
@@ -51,13 +59,14 @@ inline writeTemp8(uint8_t buf)
 
 inline uint8_t readTemp8()
 {
-    uint8_t retval;
+    uint8_t retval = 0;
     uint8_t i;
     for(i = 0; i < 8; i++)
     {
+        retval = retval << 1;
         retval |= readDigit();
-        retval << 1;
     }
+    return retval;
 }
 
 
@@ -76,6 +85,8 @@ void tempTask()
     waitMicrosecond(30);
     timer += getPinValue(PORTC, 7);
 
+    selectPinPushPullOutput(PORTC, 7);
+
     if(timer > 1)
     {
         putsUart0("ERROR: Init failed! Sensor not found!");
@@ -85,28 +96,29 @@ void tempTask()
     {
         uint8_t regNum = 0;
         uint8_t readBuf[9];
+        uint8_t writeBuf = 0x33;
+
+        writeZero();
+
         while(1)
         {
             GREEN_OB_LED ^= 1;
             sleep(500);
 
+            writeTemp8(writeBuf);
+
             while(regNum < 9 )
             {
-                uint8_t writeBuf = 0xBE;
-
-                writeTemp8(writeBuf);
-
-                selectPinDigitalInput(PORTC, 7);
-
                 readBuf[regNum] = readTemp8();
-
-                selectPinPushPullOutput(PORTC, 7);
-                setHigh();
                 regNum++;
             }
             regNum = 0;
 
+            selectPinPushPullOutput(PORTC, 7);
+
             uint8_t i;
+            putsUart0("Bulk read");
+            putcUart0('\n');
             for(i = 0; i < 9; i++)
             {
                 puthUart0(readBuf[i]);
@@ -115,4 +127,16 @@ void tempTask()
 
         }
     }
+    shmPerms();
+//    shm * sharedSpace = getShmHandle(sharedSpace);
+    while(1)
+    {
+        sleep(1000);
+
+//        sharedSpace->shared = sharedSpace->shared + 1;
+//
+//        puthUart0(sharedSpace->shared);
+//        putcUart0('\n');
+
+    } // Fault state. Tasks do not close gracefully at the close of a function.
 }

@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------
 
 #include <stdint.h>
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "mm.h"
 #include "kernel.h"
 
@@ -99,7 +99,7 @@
 #include "../drivers/pain.h"
 #include "../processes/shell.h"
 #include "../drivers/uart0.h"
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 
 uint8_t littleallocated = 0;
 uint8_t bigallocated = 0;
