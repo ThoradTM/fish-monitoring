@@ -646,8 +646,8 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
 
                 // Initial first pass at SHM. Will build a function to request access (SVC)
                 // It will check a mutex lock before passing the shm
-                //shm_struct_ptr = mallocFromHeap(1024) + 512;
-                //shm_srd = initSrdWindow(0);
+                shm_struct_ptr = (void *)((uint32_t *)mallocFromHeap(1024) + 512);
+                shm_srd = initSrdWindow(0);
 
 
                 svcUnlock = false;
@@ -944,7 +944,7 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
             // Call order: Lock SHM mutex, grab pointer, apply access mask, perform operation, remove access mask,
             // unlock mutex.
 
-            *((uint32_t *)getPsp()) = (uint32_t *)shm_struct_ptr;
+            *((uint32_t *)getPsp()) = (uint32_t)shm_struct_ptr;
             break;
         }
 

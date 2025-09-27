@@ -49,10 +49,9 @@ void * mallocUnprivFromHeap(void * ptr){
     return ptr;
 }
 
-void * getShmHandle(void * ptr)
+void * getShmHandle()
 {
     __asm("SVCCALL24: SVC #24");
-    return ptr;
 }
 
 void shmPerms()

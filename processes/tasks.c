@@ -19,6 +19,8 @@
 
 #include "../kernel/mm.h"
 #include "../kernel/kernel.h"
+#include "../kernel/servicecalls.h"
+#include "../kernel/shm.h"
 #include "tasks.h"
 
 #include "../drivers/gpio.h"
@@ -83,15 +85,32 @@ void idle(void)
     }
 }
 
-
-void idle2(void)
+void shmTestWriter(void)
 {
+    shmPerms();
+    shm * test = getShmHandle();
+
     while(true)
     {
-        setPinValue(BLUE_LED, 1);
-        waitMicrosecond(1000);
-        setPinValue(BLUE_LED, 0);
-        yield();
+        lock(resource);
+        //test->shared++;
+        unlock(resource);
+        sleep(1000);
+    }
+}
+
+void shmTestReader(void)
+{
+    shmPerms();
+    shm * test = getShmHandle();
+
+    while(true)
+    {
+        lock(resource);
+        //putiUart0((test->shared));
+        unlock(resource);
+        putcUart0('\n');
+        sleep(1000);
     }
 }
 

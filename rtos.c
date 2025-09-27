@@ -38,8 +38,6 @@
 #include "processes/temperature.h"
 
 
-
-
 //-----------------------------------------------------------------------------
 // Main
 //-----------------------------------------------------------------------------
@@ -91,6 +89,9 @@ int main(void)
 
     ok =  createThread(idle, "Idle", 6, 512);
 
+
+    ok &= createThread(shmTestWriter, "shmTestWriter", 5, 512);
+    ok &= createThread(shmTestReader, "shmTestReader", 5, 512);
 //    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
 //    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
 //    ok &= createThread(oneshot, "OneShot", 2, 1024);

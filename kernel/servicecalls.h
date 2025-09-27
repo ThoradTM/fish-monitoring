@@ -15,7 +15,7 @@ void setThreadPriority(_fn fn, uint8_t priority);
 void restartThread(_fn fn);
 void stopThread(_fn fn);
 void * mallocUnprivFromHeap(void * ptr);
-void * getShmHandle(void * ptr);
+void * getShmHandle();
 void  shmPerms();
 
 // Unprivileged shell commands
