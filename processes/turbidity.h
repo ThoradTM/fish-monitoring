@@ -1,5 +1,5 @@
 // Tasks
-// D McComas
+// Dylan Nguyen
 
 //-----------------------------------------------------------------------------
 // Hardware Target
@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 
 void initTurbidity();
-
+uint16_t readTurbidityRaw();
 void turbidityTask();
 
 

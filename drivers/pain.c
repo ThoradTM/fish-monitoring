@@ -7,7 +7,7 @@
 #include "../dependencies/tm4c123gh6pm.h"
 #include "pain.h"
 
-
+// initalize Green LED
 void initPain(){
     SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;
     _delay_cycles(3);
