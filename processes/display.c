@@ -22,6 +22,6 @@ void displayTask()
 		setGraphicsLcdTextPosition(&myDisplay, 20, 2);                 // Set text position
 		putsGraphicsLcd(&myDisplay, "Task Running");                   // Print "Task Running" at the set position
 		
-		for (volatile int i = 0; i < 1000000; i++); 	// Add a delay to avoid rapid refresh 
+		for (volatile int i = 0; i < 1000000; i++); 				   // Add a delay to avoid rapid refresh 
 	}
 }
