@@ -18,6 +18,15 @@
 #ifndef GRAPHICS_LCD_H_
 #define GRAPHICS_LCD_H_
 
+#include <stdint.h>
+
+typedef struct _DisplayContext
+{
+    uint8_t buffer[1024];
+    uint16_t txtIndex;
+    // Add more fields as needed
+} DisplayContext;
+
 enum operation
 {
     CLEAR,
@@ -29,13 +38,13 @@ enum operation
 // Subroutines
 //-----------------------------------------------------------------------------
 
-void clearGraphicsLcd();
-void initGraphicsLcd();
-void drawGraphicsLcdPixel(uint8_t x, uint8_t y, enum operation op);
-void drawGraphicsLcdRectangle(uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, enum operation op);
-void setGraphicsLcdTextPosition(uint8_t x, uint8_t page);
-void putcGraphicsLcd(char c);
-void putsGraphicsLcd(char str[]);
+void clearGraphicsLcd(DisplayContext * displayContext);
+void initGraphicsLcd(DisplayContext * displayContext);
+void drawGraphicsLcdPixel(DisplayContext * displayContext, uint8_t x, uint8_t y, enum operation op);
+void drawGraphicsLcdRectangle(DisplayContext * displayContext, uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, enum operation op);
+void setGraphicsLcdTextPosition(DisplayContext * displayContext, uint8_t x, uint8_t page);
+void putcGraphicsLcd(DisplayContext * displayContext, char c);
+void putsGraphicsLcd(DisplayContext * displayContext, char str[]);
 
 #endif
 

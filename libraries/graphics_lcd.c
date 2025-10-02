@@ -39,8 +39,7 @@
 // Global variables
 //-----------------------------------------------------------------------------
 
-uint8_t  pixelMap[1024]; // 128 rows x 64 cols * 1 byte / 8 pixel
-uint16_t txtIndex = 0;
+
 
 // 96 character 5x7 bitmaps based on ISO-646 (BCT IRV extensions)
 const uint8_t charGen[100][5] = {
@@ -186,7 +185,7 @@ void setGraphicsLcdColumn(uint8_t x)
     sendGraphicsLcdCommand(0x00 | (x & 0x0F));
 }
 
-void refreshGraphicsLcd()
+void refreshGraphicsLcd(DisplayContext * displayContext)
 {
     uint8_t x, page;
     uint16_t i = 0;
@@ -195,21 +194,34 @@ void refreshGraphicsLcd()
     	setGraphicsLcdPage(page);
         setGraphicsLcdColumn(0);
         for (x = 0; x < 128; x++)
-    	    sendGraphicsLcdData(pixelMap[i++]);
+    	    sendGraphicsLcdData(displayContext->buffer[i++]);
     }
 }
 
-void clearGraphicsLcd()
+void blankGraphicsLcd(DisplayContext * displayContext)
+{
+    uint8_t x, page;
+    uint16_t i = 0;
+    for (page = 0; page < 8; page ++)
+    {
+        setGraphicsLcdPage(page);
+        setGraphicsLcdColumn(0);
+        for (x = 0; x < 128; x++)
+            sendGraphicsLcdData(0);
+    }
+}
+
+void clearGraphicsLcd(DisplayContext * displayContext)
 {
     uint16_t i;
     // clear data memory pixel map
     for (i = 0; i < 1024; i++)
-        pixelMap[i] = 0;
+        displayContext->buffer[i] = 0;
     // copy to display
-    refreshGraphicsLcd();
+    refreshGraphicsLcd(displayContext);
 }
 
-void drawGraphicsLcdPixel(uint8_t x, uint8_t y, enum operation op)
+void drawGraphicsLcdPixel(DisplayContext * displayContext, uint8_t x, uint8_t y, enum operation op)
 {
     uint8_t data, mask, page;
     uint16_t index;
@@ -224,7 +236,7 @@ void drawGraphicsLcdPixel(uint8_t x, uint8_t y, enum operation op)
     mask = 1 << (y & 7);
 
     // read pixel map
-    data = pixelMap[index];
+    data = displayContext->buffer[index];
 
     // apply operator
     switch(op)
@@ -235,7 +247,7 @@ void drawGraphicsLcdPixel(uint8_t x, uint8_t y, enum operation op)
     }
 
     // write to pixel map
-    pixelMap[index] = data;
+    displayContext->buffer[index] = data;
 
     // write to display
     setGraphicsLcdPage(page);
@@ -243,7 +255,7 @@ void drawGraphicsLcdPixel(uint8_t x, uint8_t y, enum operation op)
     sendGraphicsLcdData(data);
 }
 
-void drawGraphicsLcdRectangle(uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, enum operation op)
+void drawGraphicsLcdRectangle(DisplayContext * displayContext, uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, enum operation op)
 {
     uint8_t page, page_start, page_stop;
     uint8_t bit_index, bit_start, bit_stop;
@@ -278,7 +290,7 @@ void drawGraphicsLcdRectangle(uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, 
         for (x = 0; x < dx; x++)
         {
             // read pixel map
-            data = pixelMap[index];
+            data = displayContext->buffer[index];
             // apply operator (0 = clear, 1 = set, 2 = xor)
             switch(op)
             {
@@ -287,21 +299,22 @@ void drawGraphicsLcdRectangle(uint8_t xul, uint8_t yul, uint8_t dx, uint8_t dy, 
                 case INVERT: data ^= mask; break;
             }
             // write to pixel map
-            pixelMap[index++] = data;
+            displayContext->buffer[index++] = data;
             // write to display
             sendGraphicsLcdData(data);
         }
     }
 }
 
-void setGraphicsLcdTextPosition(uint8_t x, uint8_t page)
+void setGraphicsLcdTextPosition(DisplayContext * displayContext, uint8_t x, uint8_t page)
 {
-    txtIndex = (page << 7) + x;
+    displayContext->txtIndex = (page << 7) + x;
     setGraphicsLcdPage(page);
     setGraphicsLcdColumn(x);
 }
 
-void putcGraphicsLcd(char c)
+
+void putcGraphicsLcd(DisplayContext * displayContext, char c)
 {
     uint8_t i, val;
     uint8_t uc;
@@ -310,21 +323,21 @@ void putcGraphicsLcd(char c)
     for (i = 0; i < 5; i++)
     {
         val = charGen[uc-' '][i];
-        pixelMap[txtIndex++] = val;
+        displayContext->buffer[displayContext->txtIndex++] = val;
         sendGraphicsLcdData(val);
     }
-    pixelMap[txtIndex++] = 0;
+    displayContext->buffer[displayContext->txtIndex++] = 0;
     sendGraphicsLcdData(0);
 }
 
-void putsGraphicsLcd(char str[])
+void putsGraphicsLcd(DisplayContext * displayContext, char str[])
 {
     uint8_t i = 0;
     while (str[i] != 0)
-        putcGraphicsLcd(str[i++]);
+        putcGraphicsLcd(displayContext, str[i++]);
 }
 
-//
+
 //void drawMenu()
 //{
 //    const char menu[MENU_ITEMS][MENU_COUNT][5] =
@@ -341,7 +354,7 @@ void putsGraphicsLcd(char str[])
 //        putsGraphicsLcd((char*)menu[i][displayPage]);
 //    }
 //}
-//
+
 //void drawVariables()
 //{
 //    char str[5];
@@ -416,7 +429,7 @@ void putsGraphicsLcd(char str[])
 //            break;
 //    }
 //}
-//
+
 //void drawPlot()
 //{
 //    uint8_t x;
@@ -470,7 +483,7 @@ void putsGraphicsLcd(char str[])
 //}
 
 
-void initGraphicsLcd()
+void initGraphicsLcd(DisplayContext * displayContext)
 {
     // Enable clocks
     SYSCTL_RCGCSSI_R |= SYSCTL_RCGCSSI_R1;
@@ -511,6 +524,6 @@ void initGraphicsLcd()
     sendGraphicsLcdCommand(0x16);
     sendGraphicsLcdCommand(0xAC); // no flashing indicator
     sendGraphicsLcdCommand(0x00);
-    clearGraphicsLcd();           // clear display
+    clearGraphicsLcd(displayContext);           // clear display
     sendGraphicsLcdCommand(0xAF); // display on
 }
