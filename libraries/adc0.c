@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "adc0.h"
 
 #define ADC_CTL_DITHER          0x00000040

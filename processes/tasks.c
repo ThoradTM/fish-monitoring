@@ -109,7 +109,7 @@ void shmTestReader(void)
         lock(resource);
         //putiUart0((test->shared));
         unlock(resource);
-        putcUart0('\n');
+        //putcUart0('\n');
         sleep(1000);
     }
 }
