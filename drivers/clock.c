@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include "clock.h"
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 
 //-----------------------------------------------------------------------------
 // Global variables

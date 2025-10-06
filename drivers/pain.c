@@ -4,7 +4,7 @@
  *  Created on: Mar 24, 2024
  *      Author: clara
  */
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "pain.h"
 
 

@@ -5,7 +5,7 @@
  *      Author: clara
  */
 
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include <stdint.h>
 
 //#define WATCHDOG0_LOAD_R        (*((volatile uint32_t *)0x40000000))

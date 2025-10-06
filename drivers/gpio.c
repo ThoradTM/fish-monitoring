@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
 #include "gpio.h"
 
 // Bit offset of the registers relative to bit 0 of DATA_R at 3FCh
