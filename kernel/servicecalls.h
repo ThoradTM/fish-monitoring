@@ -25,7 +25,7 @@ extern _fn pidof(const char name[]); // Assembly function placed here to avoid c
 void reboot();
 void stopThread(_fn fn);
 void ps(messenger * handler);
-void ipcs_mut();
+void ipcs_mut(messenger * handler);
 void meminfo(messenger * handler);
 void ipcs_sem();
 void saveShell();

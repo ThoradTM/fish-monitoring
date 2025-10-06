@@ -2,6 +2,7 @@
 #include "../libraries/graphics_lcd.h"
 #include "../kernel/shm.h"
 #include "../kernel/kernel.h"
+#include "../kernel/servicecalls.h"
 
 
 
@@ -23,7 +24,7 @@ void displayTask()
 	shmPerms();
     shm * test = getShmHandle();
 
-	uint32_t i = 0;
+	//uint32_t i = 0;
 
     while (1)
 	{

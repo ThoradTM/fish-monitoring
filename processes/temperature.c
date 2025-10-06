@@ -5,6 +5,12 @@
 #include "../drivers/gpio.h"
 #include "../kernel/shm.h"
 #include "../drivers/uart0.h"
+#include "../kernel/servicecalls.h"
+
+
+inline setHigh() { setPinValue(PORTC, 7, 1); }
+
+inline setLow() { setPinValue(PORTC, 7, 0); }
 
 
 void tempInit()
@@ -13,10 +19,6 @@ void tempInit()
     selectPinPushPullOutput(PORTC, 7);
     setHigh();
 }
-
-inline setHigh() { setPinValue(PORTC, 7, 1); }
-
-inline setLow() { setPinValue(PORTC, 7, 0); }
 
 inline writeOne()
 {

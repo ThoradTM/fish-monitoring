@@ -62,7 +62,7 @@ typedef struct _semaphore
 semaphore semaphores[MAX_SEMAPHORES];
 
 // SHM
-void * shm_struct_ptr;
+uint32_t * shm_struct_ptr;
 uint64_t shm_srd;
 
 enum
@@ -654,10 +654,10 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
 
                 // Initial first pass at SHM. Will build a function to request access (SVC)
                 // It will check a mutex lock before passing the shm
-                shm_struct_ptr = tcb[i].spInit - 256; // Grabs the middle of the range for SHM allocation
+                shm_struct_ptr = (tcb[i].spInit - 256); // Grabs the middle of the range for SHM allocation
                 shm_srd = tcb[i].srd;
 
-                shm * shm_temp = shm_struct_ptr;
+                shm * shm_temp = (shm * )shm_struct_ptr;
                 shm_temp->shared = 0;
 
 

@@ -6,6 +6,7 @@
  */
 
 #include "servicecalls.h"
+#include "../drivers/uart0.h"
 
 // Standard System Calls
 
