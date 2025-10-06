@@ -130,10 +130,15 @@ void tempTask()
         }
     }
     shmPerms();
-//    shm * sharedSpace = getShmHandle(sharedSpace);
+    
+    shm * sharedSpace = getShmHandle();
     while(1)
     {
         sleep(1000);
+        
+        lock(resource);
+        sharedSpace->temperature++;
+        unlock(resource);
 
 //        sharedSpace->shared = sharedSpace->shared + 1;
 //

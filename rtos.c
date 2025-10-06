@@ -103,10 +103,10 @@ int main(void)
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
 //    ok &= createThread(errant, "Errant", 6, 1024);
 
-//    ok &= createThread(turbidityTask, "Turbidity", 6, 1024);
+    ok &= createThread(turbidityTask, "Turbidity", 6, 512);
     ok &= createThread(displayTask, "Display", 6, 4096);
-//    ok &= createThread(tempTask, "Temperature", 0, 1024);
-    ok &= createThread(shell, "Shell", 6, 8192);
+    ok &= createThread(tempTask, "Temperature", 0, 512);
+    ok &= createThread(shell, "Shell", 6, 1024);
     ok &= createThread(restartShell, "RestartShell", 6, 512);
 
     putsUart0("Done!\n\n");

@@ -659,6 +659,8 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
 
                 shm * shm_temp = (shm * )shm_struct_ptr;
                 shm_temp->shared = 0;
+                shm_temp->temperature = 0;
+                shm_temp->turbidity = 0;
 
 
                 svcUnlock = false;

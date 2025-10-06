@@ -8,6 +8,10 @@
 //#include "adc.h"                     // Include ADC driver for sensor reading
 //#include "gpio.h"                    // Include GPIO driver if needed
 
+#include "../kernel/shm.h"
+#include "../kernel/kernel.h"
+#include "../kernel/servicecalls.h"
+
 void initTurbidity()
 {
     // Initialize ADC for turbidity sensor
@@ -17,8 +21,15 @@ void initTurbidity()
 
 void turbidityTask()
 {
-    while (1)
+    shmPerms();
+    shm * sharedSpace = getShmHandle();
+    while(1)
     {
+        sleep(1000);
+        
+        lock(resource);
+        sharedSpace->turbidity++;
+        unlock(resource);
         // Read turbidity sensor value using ADC
         // Process the sensor data (e.g., convert to NTU)
         // Optionally, send the data to another task or log it

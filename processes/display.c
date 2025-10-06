@@ -3,6 +3,7 @@
 #include "../kernel/shm.h"
 #include "../kernel/kernel.h"
 #include "../kernel/servicecalls.h"
+#include "../drivers/uart0.h"
 
 
 
@@ -22,12 +23,25 @@ void displayTask()
     initDisplay(lcdHandler);
 
 	shmPerms();
-    shm * test = getShmHandle();
+    shm * shmHandle = getShmHandle();
 
 	//uint32_t i = 0;
 
     while (1)
 	{
+
+		sleep(1000);
+
+
+		putsUart0("Temperature: ");
+		putiUart0(shmHandle->temperature);
+		putcUart0('\n');
+
+		putsUart0("Turbidity: ");
+		putiUart0(shmHandle->turbidity);
+		putcUart0('\n');
+
+
 		//drawGraphicsLcdRectangle(&myDisplay, 10, 10, 50, 20, INVERT); // Draw a rectangle on the display
 //        setGraphic();
 //		setGraphicsLcdTextPosition(&myDisplay, 20, 2);                 // Set text position
