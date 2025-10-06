@@ -32,6 +32,7 @@
 #include "../libraries/tm4c123gh6pm.h"
 #include "mm.h"
 #include "kernel.h"
+#include "shm.h"
 #include "../drivers/uart0.h"
 #include "../drivers/pain.h"
 
@@ -644,10 +645,20 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
                 setPsp(tcb[taskCurrent].sp); // Set the new PSP
                 applySramAccessMask(tcb[taskCurrent].srd);
 
+                uint8_t i;
+                for(i = 0; i < MAX_TASKS; i++){
+                    if(!strcmp1("Shared Mem", tcb[i].name)){
+                        break;
+                    }
+                }
+
                 // Initial first pass at SHM. Will build a function to request access (SVC)
                 // It will check a mutex lock before passing the shm
-                shm_struct_ptr = (void *)((uint32_t *)mallocFromHeap(1024) + 512);
-                shm_srd = initSrdWindow(0);
+                shm_struct_ptr = tcb[i].spInit - 256; // Grabs the middle of the range for SHM allocation
+                shm_srd = tcb[i].srd;
+
+                shm * shm_temp = shm_struct_ptr;
+                shm_temp->shared = 0;
 
 
                 svcUnlock = false;

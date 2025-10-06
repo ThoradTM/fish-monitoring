@@ -15,6 +15,9 @@
 // Subroutines
 //-----------------------------------------------------------------------------
 
+void shm_task(); // Dummy task that holds on to a memory pointer, its only use is to create an SHM region.
+// Bad practice but I need this to work.
+
 void idle(void);
 
 void shmTestWriter();

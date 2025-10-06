@@ -69,6 +69,13 @@ uint8_t readPbs(void)
 
 // one task must be ready at all times or the scheduler will fail
 // the idle task is implemented for this purpose
+
+// We've reached this point, its the only way.
+void shm_task()
+{
+    while(1);
+}
+
 void idle(void)
 {
     while(true)
@@ -93,7 +100,7 @@ void shmTestWriter(void)
     while(true)
     {
         lock(resource);
-        //test->shared++;
+        test->shared++;
         unlock(resource);
         sleep(1000);
     }
@@ -107,9 +114,9 @@ void shmTestReader(void)
     while(true)
     {
         lock(resource);
-        //putiUart0((test->shared));
+        putiUart0((test->shared));
         unlock(resource);
-        //putcUart0('\n');
+        putcUart0('\n');
         sleep(1000);
     }
 }

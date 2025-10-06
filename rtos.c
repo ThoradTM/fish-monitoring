@@ -87,6 +87,8 @@ int main(void)
 
     putsUart0("Loading system tasks....\n");
 
+    ok =  createThread(shm_task, "Shared Mem", 15, 512);
+
     ok =  createThread(idle, "Idle", 6, 512);
 
 

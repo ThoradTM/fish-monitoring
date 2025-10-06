@@ -28,7 +28,7 @@ void displayTask()
     while (1)
 	{
 		//drawGraphicsLcdRectangle(&myDisplay, 10, 10, 50, 20, INVERT); // Draw a rectangle on the display
-        setGraphic();
+//        setGraphic();
 //		setGraphicsLcdTextPosition(&myDisplay, 20, 2);                 // Set text position
 //		// putsGraphicsLcd(lcdHandler, "Task Running");                   // Print "Task Running" at the set position
 //
