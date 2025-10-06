@@ -42,10 +42,14 @@ inline uint8_t readDigit()
     setLow();
     waitMicrosecond(12);
     setHigh();
+
     selectPinDigitalInput(PORTC, 7);
+
     waitMicrosecond(5);
     if(getPinValue(PORTC, 7)) retval = 0x01;
+
     selectPinPushPullOutput(PORTC, 7);
+
     waitMicrosecond(45);
     return retval;
 }
@@ -71,6 +75,10 @@ inline uint8_t readTemp8()
     return retval;
 }
 
+#define READ_FULL_SINGLE_DEV 0x33
+#define INIT_CONVERT 0x44
+
+#define READ_SCRATCHPAD 0xBE
 
 void tempTask()
 {
@@ -98,7 +106,6 @@ void tempTask()
     {
         uint8_t regNum = 0;
         uint8_t readBuf[9];
-        uint8_t writeBuf = 0x33;
 
         writeZero();
 
@@ -107,7 +114,7 @@ void tempTask()
             GREEN_OB_LED ^= 1;
             sleep(500);
 
-            writeTemp8(writeBuf);
+            writeTemp8(READ_FULL_SINGLE_DEV);
 
             while(regNum < 9 )
             {
@@ -116,7 +123,7 @@ void tempTask()
             }
             regNum = 0;
 
-            selectPinPushPullOutput(PORTC, 7);
+            
 
             uint8_t i;
             putsUart0("Bulk read");
@@ -126,6 +133,30 @@ void tempTask()
                 puthUart0(readBuf[i]);
                 putcUart0('\n');
             }
+
+
+            writeTemp8(INIT_CONVERT);
+
+            while(!readTemp8()); // Waiting on conversion to be done
+
+            writeTemp8(READ_SCRATCHPAD);
+
+            while(regNum < 3 )
+            {
+                readBuf[regNum] = readTemp8();
+                regNum++;
+            }
+            regNum = 0;
+
+            uint8_t i;
+            putsUart0("Scratchpad read");
+            putcUart0('\n');
+            for(i = 0; i < 3; i++)
+            {
+                puthUart0(readBuf[i]);
+                putcUart0('\n');
+            }
+
 
         }
     }
