@@ -92,8 +92,8 @@ int main(void)
     ok =  createThread(idle, "Idle", 6, 512);
 
 
-    ok &= createThread(shmTestWriter, "shmTestWriter", 5, 512);
-    ok &= createThread(shmTestReader, "shmTestReader", 5, 512);
+//    ok &= createThread(shmTestWriter, "shmTestWriter", 5, 512);
+//    ok &= createThread(shmTestReader, "shmTestReader", 5, 512);
 //    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
 //    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
 //    ok &= createThread(oneshot, "OneShot", 2, 1024);
@@ -103,8 +103,8 @@ int main(void)
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
 //    ok &= createThread(errant, "Errant", 6, 1024);
 
-    ok &= createThread(turbidityTask, "Turbidity", 6, 512);
-    ok &= createThread(displayTask, "Display", 6, 4096);
+//    ok &= createThread(turbidityTask, "Turbidity", 6, 512);
+//    ok &= createThread(displayTask, "Display", 6, 4096);
     ok &= createThread(tempTask, "Temperature", 0, 512);
     ok &= createThread(shell, "Shell", 6, 1024);
     ok &= createThread(restartShell, "RestartShell", 6, 512);

@@ -90,7 +90,7 @@ void mpuFaultIsr(void)
     putsUart0("\x1B[;32mOffending Address: \x1B[0m");
     puthUart0(NVIC_MM_ADDR_R);
     putcUart0('\n');
-    dump();
+    dump();(uint32_t *)getPsp();
     NVIC_INT_CTRL_R |= (0x1 << 28);
 }
 
