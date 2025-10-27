@@ -6,8 +6,6 @@
 #include "../drivers/uart0.h"
 #include "../libraries/pwm.h"
 
-
-
 void initDisplay(DisplayContext * myDisplay)
 {
 	initGraphicsLcd(myDisplay);                   // Initialize the graphics LCD hardware and state
@@ -23,45 +21,60 @@ enum states
 	SCREENSAVER
 };
 
-void consumerStateMachine()
+void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHandler)
 {
-	states state = DISPLAY;
 	switch(state)
 	{
 		case DISPLAY: 
-			displayTask();
+			displayTask(lcdHandler, shmHandle);
 			break;
 		
 		case SETTINGS:
-
-
+			settingsTask(lcdHandler);
+			break;
+		
+		case SCREENSAVER:
+			screensaverTask(lcdHandler);
+			break;
 	}
 }
 
-void displayTask()
+void changeState()
 {
-    DisplayContext myDisplay;
+
+}
+
+void consumerLoop()
+{
+	DisplayContext myDisplay;
     DisplayContext * lcdHandler = &myDisplay;
     initDisplay(lcdHandler);
 
 	shmPerms();
     shm * shmHandle = getShmHandle();
 
+	states state = DISPLAY;
+	
+	while(1)
+	{
+		sleep(1000);
+		state = changeState(state);
+		consumerStateMachine(state, lcdHandler, shmHandle);
+	}
+}
+
+void displayTask(shm * shmHandle)
+{
+
 	//uint32_t i = 0;
 
-    while (1)
-	{
+	putsUart0("Temperature: ");
+	putiUart0(shmHandle->temperature);
+	putcUart0('\n');
 
-		sleep(1000);
-
-
-		putsUart0("Temperature: ");
-		putiUart0(shmHandle->temperature);
-		putcUart0('\n');
-
-		putsUart0("Turbidity: ");
-		putiUart0(shmHandle->turbidity);
-		putcUart0('\n');
+	putsUart0("Turbidity: ");
+	putiUart0(shmHandle->turbidity);
+	putcUart0('\n');
 
 		//drawGraphicsLcdRectangle(&myDisplay, 10, 10, 50, 20, INVERT); // Draw a rectangle on the display
 //        setGraphic();
@@ -85,24 +98,18 @@ void settingsTask()
     initDisplay(lcdHandler);
 
 	shmPerms();
-    shm * shmHandle = getShmHandle();
+    shmHandle = getShmHandle();
 
 	//uint32_t i = 0;
 
-    while (1)
-	{
+	putsUart0("Temperature: ");
+	putiUart0(shmHandle->temperature);
+	putcUart0('\n');
 
-		sleep(1000);
+	putsUart0("Turbidity: ");
+	putiUart0(shmHandle->turbidity);
+	putcUart0('\n');
 
-
-		putsUart0("Temperature: ");
-		putiUart0(shmHandle->temperature);
-		putcUart0('\n');
-
-		putsUart0("Turbidity: ");
-		putiUart0(shmHandle->turbidity);
-		putcUart0('\n');
-	}
 }
 
 void screensaverTask()
@@ -116,18 +123,12 @@ void screensaverTask()
 
 	//uint32_t i = 0;
 
-    while (1)
-	{
+	putsUart0("Temperature: ");
+	putiUart0(shmHandle->temperature);
+	putcUart0('\n');
 
-		sleep(1000);
+	putsUart0("Turbidity: ");
+	putiUart0(shmHandle->turbidity);
+	putcUart0('\n');
 
-
-		putsUart0("Temperature: ");
-		putiUart0(shmHandle->temperature);
-		putcUart0('\n');
-
-		putsUart0("Turbidity: ");
-		putiUart0(shmHandle->turbidity);
-		putcUart0('\n');
-	}
 }
