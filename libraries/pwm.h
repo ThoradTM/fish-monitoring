@@ -16,11 +16,11 @@
 extern int32_t desired_pwm;
 
 void initMotor();
-void motorSpeedFw(int ms0);
-void motorSpeedBw(int ms0);
-void motorSpeedCcw(int ms0);
-void motorSpeedCw(int ms0);
-void motorSpeedZero();
+
+void servoSlow();
+
+
+void servoStop();
 
 
 #endif /* LIBRARIES_PWM_H_ */

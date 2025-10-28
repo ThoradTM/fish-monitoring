@@ -5,21 +5,54 @@
 #include "../kernel/servicecalls.h"
 #include "../drivers/uart0.h"
 #include "../libraries/pwm.h"
+#include "../libraries/wait.h"
 
 void initDisplay(DisplayContext * myDisplay)
 {
+//	waitMicrosecond(10);
 	initGraphicsLcd(myDisplay);                   // Initialize the graphics LCD hardware and state
+//	waitMicrosecond(10);
 	clearGraphicsLcd(myDisplay);          		   // Clear the display buffer and the physical screen
+//	waitMicrosecond(10);
 	setGraphicsLcdTextPosition(myDisplay, 0, 0);  // Set the text cursor to the top-left corner
+//	waitMicrosecond(10);
 	putsGraphicsLcd(myDisplay, "Display Ready");  // Print "Display Ready" on the LCD
+//	waitMicrosecond(10000);
 }
 
-enum states
+typedef enum states
 {
 	DISPLAY,
 	SETTINGS,
 	SCREENSAVER
-};
+}states;
+
+void displayTask(DisplayContext * lcdHandler, shm * shmHandle)
+{
+	//setGraphicsLcdTextPosition(lcdHandler, 20, 2);                 // Set text position
+	putsGraphicsLcd(lcdHandler, "Task Running");                   // Print "Task Running" at the set position
+
+	putsGraphicsLcd(lcdHandler, "Temperature: ");
+	
+	lock(resource);
+
+	putiGraphicsLcd(lcdHandler, shmHandle->temperature);
+	unlock(resource);
+
+	sleep(1000);
+	//clearGraphicsLcd(lcdHandler);
+}
+
+
+void settingsTask(DisplayContext * lcdHandler)
+{
+
+}
+
+void screensaverTask(DisplayContext * lcdHandler)
+{
+
+}
 
 void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHandler)
 {
@@ -39,9 +72,17 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 	}
 }
 
-void changeState()
+states changeState(states state)
+{
+	return DISPLAY;
+}
+
+void doScheduledTask()
 {
 
+	servoSlow();
+	sleep(173);
+	servoStop();
 }
 
 void consumerLoop()
@@ -57,78 +98,17 @@ void consumerLoop()
 	
 	while(1)
 	{
+		////    // Draw flashing block around the text
+		while(true)
+		{
+			drawGraphicsLcdRectangle(lcdHandler, 83, 39, 25, 9, INVERT);
+			waitMicrosecond(500000);
+		}
 		sleep(1000);
 		state = changeState(state);
-		consumerStateMachine(state, lcdHandler, shmHandle);
+		consumerStateMachine(state, shmHandle, lcdHandler);
+
+		// Placeholder to check if its time to do a task
+		// doScheduledTask();
 	}
-}
-
-void displayTask(shm * shmHandle)
-{
-
-	//uint32_t i = 0;
-
-	putsUart0("Temperature: ");
-	putiUart0(shmHandle->temperature);
-	putcUart0('\n');
-
-	putsUart0("Turbidity: ");
-	putiUart0(shmHandle->turbidity);
-	putcUart0('\n');
-
-		//drawGraphicsLcdRectangle(&myDisplay, 10, 10, 50, 20, INVERT); // Draw a rectangle on the display
-//        setGraphic();
-//		setGraphicsLcdTextPosition(&myDisplay, 20, 2);                 // Set text position
-//		// putsGraphicsLcd(lcdHandler, "Task Running");                   // Print "Task Running" at the set position
-//
-//        lock(resource);
-//        i++;
-//        unlock(resource);
-//        putsGraphicsLcd(lcdHandler, "NUM: ");
-//        putiGraphicsLcd(lcdHandler, i);
-//        sleep(1000);
-//        clearGraphicsLcd(lcdHandler);
-	}
-}
-
-void settingsTask()
-{
-    DisplayContext myDisplay;
-    DisplayContext * lcdHandler = &myDisplay;
-    initDisplay(lcdHandler);
-
-	shmPerms();
-    shmHandle = getShmHandle();
-
-	//uint32_t i = 0;
-
-	putsUart0("Temperature: ");
-	putiUart0(shmHandle->temperature);
-	putcUart0('\n');
-
-	putsUart0("Turbidity: ");
-	putiUart0(shmHandle->turbidity);
-	putcUart0('\n');
-
-}
-
-void screensaverTask()
-{
-    DisplayContext myDisplay;
-    DisplayContext * lcdHandler = &myDisplay;
-    initDisplay(lcdHandler);
-
-	shmPerms();
-    shm * shmHandle = getShmHandle();
-
-	//uint32_t i = 0;
-
-	putsUart0("Temperature: ");
-	putiUart0(shmHandle->temperature);
-	putcUart0('\n');
-
-	putsUart0("Turbidity: ");
-	putiUart0(shmHandle->turbidity);
-	putcUart0('\n');
-
 }

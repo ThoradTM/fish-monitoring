@@ -181,15 +181,17 @@ void tempTask()
    }
    else
    {
+        shmPerms();
+    
+        shm * sharedSpace = getShmHandle();
         uint8_t regNum = 0;
         uint8_t i = 0;
 
         while(1)
         {
 
-             sleep(1000);  // 1 second delay between readings
+            sleep(1000);  // 1 second delay between readings
     
-            // 1. Start conversion
             startSequence();
             writeTemp8(SKIP_ROM);
             writeTemp8(INIT_CONVERT);
@@ -200,8 +202,6 @@ void tempTask()
 //         Waiting on conversion to be done
                 obvs = readDigit();
            }
-
-            // 2. Read scratchpad
             startSequence();
             writeTemp8(SKIP_ROM);
             writeTemp8(READ_SCRATCHPAD);
@@ -212,110 +212,21 @@ void tempTask()
                 readBuf[regNum] = readTemp8();
             }
             
-            // 3. Print raw data
-            putsUart0("Scratchpad read\n");
-            for(i = 0; i < 9; i++)
-            {
-                puthUart0(readBuf[i]);
-                putcUart0('\n');
-            }
+            //
+            // putsUart0("Scratchpad read\n");
+            // for(i = 0; i < 9; i++)
+            // {
+            //     puthUart0(readBuf[i]);
+            //     putcUart0('\n');
+            // }
             
-            // 4. Calculate temperature
             int16_t temp_raw = (readBuf[1] << 8) | readBuf[0];
             int32_t temperature = (temp_raw * 100) / 16;
-            
-            putsUart0("Temperature: ");
-            putiUart0((int)temperature);
-            putsUart0(" C\n");
+
+            lock(resource);
+            sharedSpace->temperature = temperature;
+            unlock(resource);
         }
-//            //GREEN_OB_LED ^= 1;
-//            waitMicrosecond(1000000);
-
-//            writeTemp8(SKIP_ROM);
-
-//            writeTemp8(INIT_CONVERT);
-
-
-//             waitMicrosecond(750000);  // Wait 750ms, not 30μs!
-
-
-//             uint8_t obvs = 0;
-//            while(!obvs)
-//            {
-// //                            Waiting on conversion to be done
-//                 obvs = readDigit();
-//             //    putiUart0(obvs);
-//            }
-
-//            startSequence();
-
-
-
-//            writeTemp8(SKIP_ROM);
-
-//            writeTemp8(READ_SCRATCHPAD);
-
-//            for(regNum = 0; regNum < 9; regNum++)
-//            {
-//                readBuf[regNum] = readTemp8();
-//            }
-
-
-
-//            putsUart0("Scratchpad read");
-//            putcUart0('\n');
-//            for(i = 0; i < 9; i++)
-//            {
-//                puthUart0(readBuf[i]);
-//                putcUart0('\n');
-//            }
-
-
-
-        //    uint8_t Temp_LSB = readTemp8();
-        //    uint8_t Temp_MSB = readTemp8();
-        //    int Temp = ((Temp_MSB<<8))|Temp_LSB;
-        //    float temperature = (float)Temp/16.0;
-        //    putiUart0(Temp/16);
-
-        //    putcUart0('\n');
-
-
-
-
-            //startSequence();
-
-        //     uint8_t i = 5;
-        //    for(i = 100; i > 0; i--)
-        //    {
-
-
-        //    }
-        //    sleep(500);
-
-
-
-
-
-
-        }
-    
-    shmPerms();
-    
-    shm * sharedSpace = getShmHandle();
-    while(1)
-    {
-        sleep(1000);
-        
-        lock(resource);
-        sharedSpace->temperature++;
-        unlock(resource);
-
-       sharedSpace->shared = sharedSpace->shared + 1;
-
-       puthUart0(sharedSpace->shared);
-       putcUart0('\n');
-
-    } // Fault state. Tasks do not close gracefully at the close of a function.
+    }
 }
 

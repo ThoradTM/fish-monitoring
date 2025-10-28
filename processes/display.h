@@ -17,7 +17,7 @@
 
 void initDisplay();
 
-void displayTask();
+void consumerLoop();
 
 
 #endif

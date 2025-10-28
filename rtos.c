@@ -104,7 +104,7 @@ int main(void)
 //    ok &= createThread(errant, "Errant", 6, 1024);
 
 //    ok &= createThread(turbidityTask, "Turbidity", 6, 512);
-//    ok &= createThread(displayTask, "Display", 6, 4096);
+    ok &= createThread(consumerLoop, "Consumer Thread", 6, 4096);
     ok &= createThread(tempTask, "Temperature", 0, 512);
     ok &= createThread(shell, "Shell", 6, 1024);
     ok &= createThread(restartShell, "RestartShell", 6, 512);

@@ -13,6 +13,8 @@
 #include "../drivers/uart0.h"
 #include "../drivers/clock.h"
 
+#include "../libraries/pwm.h"
+
 #define BLUE_LED   PORTF,2 // on-board blue LED
 #define RED_LED    PORTE,0 // off-board red LED
 #define ORANGE_LED PORTA,2 // off-board orange LED
@@ -30,6 +32,7 @@ void initHw(void)
     _delay_cycles(3);
     initUart0();
     initPain();
+    initPwm();
 
     SYSCTL_RCGCTIMER_R |= (SYSCTL_RCGCTIMER_R1 | SYSCTL_RCGCTIMER_R5);
 

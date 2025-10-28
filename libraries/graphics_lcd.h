@@ -45,6 +45,7 @@ void drawGraphicsLcdRectangle(DisplayContext * displayContext, uint8_t xul, uint
 void setGraphicsLcdTextPosition(DisplayContext * displayContext, uint8_t x, uint8_t page);
 void putcGraphicsLcd(DisplayContext * displayContext, char c);
 void putsGraphicsLcd(DisplayContext * displayContext, char str[]);
+void putiGraphicsLcd(DisplayContext * displayContext, uint32_t x);
 
 #endif
 
