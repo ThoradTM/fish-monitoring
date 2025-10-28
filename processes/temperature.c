@@ -23,6 +23,8 @@ void tempInit()
     waitMicrosecond(2);
 }
 
+// For later comparison
+
 // inline writeOne()
 // {
 //     setLow();
@@ -56,24 +58,7 @@ inline writeZero()
     waitMicrosecond(10);  // 10μs recovery (total 70μs slot)
 }
 
-// uint8_t ds18b20_crc8(const uint8_t *data, uint8_t len)
-// {
-//     uint8_t crc = 0;
-//     for (uint8_t i = 0; i < len; i++)
-//     {
-//         uint8_t inbyte = data[i];
-//         for (uint8_t j = 0; j < 8; j++)
-//         {
-//             uint8_t mix = (crc ^ inbyte) & 0x01;
-//             crc >>= 1;
-//             if (mix)
-//                 crc ^= 0x8C;  // Dallas/Maxim polynomial
-//             inbyte >>= 1;
-//         }
-//     }
-//     return crc;
-// }
-
+// For later comparison
 
 // inline uint8_t readDigit()
 // {
@@ -185,7 +170,6 @@ void tempTask()
     
         shm * sharedSpace = getShmHandle();
         uint8_t regNum = 0;
-        uint8_t i = 0;
 
         while(1)
         {
@@ -212,13 +196,13 @@ void tempTask()
                 readBuf[regNum] = readTemp8();
             }
             
-            //
-            // putsUart0("Scratchpad read\n");
-            // for(i = 0; i < 9; i++)
-            // {
-            //     puthUart0(readBuf[i]);
-            //     putcUart0('\n');
-            // }
+            //uint8_t i = 0;
+            //putsUart0("Scratchpad read\n");
+            //for(i = 0; i < 9; i++)
+            //{
+            //    puthUart0(readBuf[i]);
+            //    putcUart0('\n');
+            //}
             
             int16_t temp_raw = (readBuf[1] << 8) | readBuf[0];
             int32_t temperature = (temp_raw * 100) / 16;

@@ -654,7 +654,7 @@ void svCallIsr() //  fixed the other stuff, but this function is still kinda ine
 
                 // Initial first pass at SHM. Will build a function to request access (SVC)
                 // It will check a mutex lock before passing the shm
-                shm_struct_ptr = (tcb[i].spInit - 256); // Grabs the middle of the range for SHM allocation
+                shm_struct_ptr = (uint32_t *)((int)tcb[i].spInit - 256); // Grabs the middle of the range for SHM allocation
                 shm_srd = tcb[i].srd;
 
                 shm * shm_temp = (shm * )shm_struct_ptr;

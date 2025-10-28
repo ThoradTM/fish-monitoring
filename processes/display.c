@@ -7,17 +7,19 @@
 #include "../libraries/pwm.h"
 #include "../libraries/wait.h"
 
+
+// Stup port to 
 void initDisplay(DisplayContext * myDisplay)
 {
-//	waitMicrosecond(10);
+	waitMicrosecond(10);
 	initGraphicsLcd(myDisplay);                   // Initialize the graphics LCD hardware and state
-//	waitMicrosecond(10);
+	waitMicrosecond(10);
 	clearGraphicsLcd(myDisplay);          		   // Clear the display buffer and the physical screen
-//	waitMicrosecond(10);
+	waitMicrosecond(10);
 	setGraphicsLcdTextPosition(myDisplay, 0, 0);  // Set the text cursor to the top-left corner
-//	waitMicrosecond(10);
+	waitMicrosecond(10);
 	putsGraphicsLcd(myDisplay, "Display Ready");  // Print "Display Ready" on the LCD
-//	waitMicrosecond(10000);
+	waitMicrosecond(10000);
 }
 
 typedef enum states
@@ -29,9 +31,10 @@ typedef enum states
 
 void displayTask(DisplayContext * lcdHandler, shm * shmHandle)
 {
-	//setGraphicsLcdTextPosition(lcdHandler, 20, 2);                 // Set text position
+	clearGraphicsLcd(lcdHandler);
+	setGraphicsLcdTextPosition(lcdHandler, 20, 2);                 // Set text position
 	putsGraphicsLcd(lcdHandler, "Task Running");                   // Print "Task Running" at the set position
-
+	setGraphicsLcdTextPosition(lcdHandler, 20, 3);                 // Set text position
 	putsGraphicsLcd(lcdHandler, "Temperature: ");
 	
 	lock(resource);
@@ -39,8 +42,7 @@ void displayTask(DisplayContext * lcdHandler, shm * shmHandle)
 	putiGraphicsLcd(lcdHandler, shmHandle->temperature);
 	unlock(resource);
 
-	sleep(1000);
-	//clearGraphicsLcd(lcdHandler);
+	sleep(100);
 }
 
 
@@ -79,7 +81,7 @@ states changeState(states state)
 
 void doScheduledTask()
 {
-
+	sleep(1000);
 	servoSlow();
 	sleep(173);
 	servoStop();
@@ -98,17 +100,11 @@ void consumerLoop()
 	
 	while(1)
 	{
-		////    // Draw flashing block around the text
-		while(true)
-		{
-			drawGraphicsLcdRectangle(lcdHandler, 83, 39, 25, 9, INVERT);
-			waitMicrosecond(500000);
-		}
 		sleep(1000);
 		state = changeState(state);
 		consumerStateMachine(state, shmHandle, lcdHandler);
 
 		// Placeholder to check if its time to do a task
-		// doScheduledTask();
+		doScheduledTask();
 	}
 }

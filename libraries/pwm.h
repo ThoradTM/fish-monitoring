@@ -15,7 +15,7 @@
 
 extern int32_t desired_pwm;
 
-void initMotor();
+void initPwm();
 
 void servoSlow();
 
