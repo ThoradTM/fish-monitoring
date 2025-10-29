@@ -604,8 +604,8 @@ void initGraphicsLcd(DisplayContext * displayContext)
 
     // Initialize display
     sendGraphicsLcdCommand(0x40); // set start line to 0
-    sendGraphicsLcdCommand(0xA1); // reverse horizontal order
-    sendGraphicsLcdCommand(0xC0); // normal vertical order
+    sendGraphicsLcdCommand(0xA0); // reverse horizontal order
+    sendGraphicsLcdCommand(0xC8); // normal vertical order
     sendGraphicsLcdCommand(0xA6); // normal pixel polarity
     sendGraphicsLcdCommand(0xA2); // set led bias to 1/9 (should be A2)
     sendGraphicsLcdCommand(0x2F); // turn on voltage booster and regulator

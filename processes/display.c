@@ -81,7 +81,6 @@ states changeState(states state)
 
 void doScheduledTask()
 {
-	sleep(1000);
 	servoSlow();
 	sleep(173);
 	servoStop();
@@ -101,8 +100,8 @@ void consumerLoop()
 	while(1)
 	{
 		sleep(1000);
-		state = changeState(state);
-		consumerStateMachine(state, shmHandle, lcdHandler);
+		// state = changeState(state);
+		// consumerStateMachine(state, shmHandle, lcdHandler);
 
 		// Placeholder to check if its time to do a task
 		doScheduledTask();
