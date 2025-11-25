@@ -180,33 +180,31 @@ void readKeys(void)
             yield();
         }
         post(keyPressed);
-        if ((~buttons & 1) != 0)
+        if ((buttons & 1) != 0)
         {
             setPinValue(YELLOW_LED, !getPinValue(YELLOW_LED));
             setPinValue(RED_LED, 1);
         }
-        if ((~buttons & 2) != 0)
+        if ((buttons & 2) != 0)
         {
             post(flashReq);
             setPinValue(RED_LED, 0);
         }
-        if ((~buttons & 4) != 0)
+        if ((buttons & 4) != 0)
         {
             restartThread(flash4Hz);
         }
-        if ((~buttons & 8) != 0)
+        if ((buttons & 8) != 0)
         {
             stopThread(flash4Hz);
         }
-        if ((~buttons & 16) != 0)
+        if ((buttons & 16) != 0)
         {
             setThreadPriority(lengthyFn, 4);
         }
         yield();
     }
 }
-
-
 
 void debounce(void)
 {
@@ -218,7 +216,7 @@ void debounce(void)
         while (count != 0)
         {
             sleep(10);
-            if (readPbs() != 0x3F)
+            if (readPbs() == 0)
                 count--;
             else
                 count = 10;

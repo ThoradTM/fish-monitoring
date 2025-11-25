@@ -95,6 +95,15 @@ void consumerLoop()
     shm * shmHandle = getShmHandle();
 
 	states state = DISPLAY;
+
+	wait(keyReleased);
+	buttons = 0;
+	while (buttons == 0)
+	{
+		buttons = readPbs();
+		yield();
+	}
+	post(keyPressed);
 	
 	while(1)
 	{
