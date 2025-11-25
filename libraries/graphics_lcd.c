@@ -256,7 +256,7 @@ void setGraphicsLcdPage(uint8_t page)
 void setGraphicsLcdColumn(uint8_t x)
 {
     sendGraphicsLcdCommand(0x10 | (x >> 4));
-    sendGraphicsLcdCommand(0x00 | (x & 0x0F));
+    sendGraphicsLcdCommand(0x04 | (x & 0x0F));
 }
 
 void refreshGraphicsLcd(DisplayContext * displayContext)

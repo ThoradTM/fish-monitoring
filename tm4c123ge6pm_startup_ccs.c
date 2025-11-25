@@ -30,7 +30,7 @@
 #include "kernel/kernel.h"
 #include "processes/tasks.h"
 #include "drivers/watchdog.h"
-
+#include "libraries/one_shot_feeder.h"
 
 
 //*****************************************************************************
@@ -187,7 +187,7 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
-    IntDefaultHandler,                      // Timer 5 subtimer A
+    timer5Isr,                      // Timer 5 subtimer A
     IntDefaultHandler,                      // Timer 5 subtimer B
     IntDefaultHandler,                      // Wide Timer 0 subtimer A
     IntDefaultHandler,                      // Wide Timer 0 subtimer B

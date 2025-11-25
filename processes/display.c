@@ -82,8 +82,7 @@ states changeState(states state)
 void doScheduledTask()
 {
 	servoSlow();
-	sleep(173);
-	servoStop();
+	TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
 }
 
 void consumerLoop()
@@ -100,8 +99,8 @@ void consumerLoop()
 	while(1)
 	{
 		sleep(1000);
-		// state = changeState(state);
-		// consumerStateMachine(state, shmHandle, lcdHandler);
+		state = changeState(state);
+		consumerStateMachine(state, shmHandle, lcdHandler);
 
 		// Placeholder to check if its time to do a task
 		doScheduledTask();
