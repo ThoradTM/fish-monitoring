@@ -46,6 +46,7 @@ void setGraphicsLcdTextPosition(DisplayContext * displayContext, uint8_t x, uint
 void putcGraphicsLcd(DisplayContext * displayContext, char c);
 void putsGraphicsLcd(DisplayContext * displayContext, char str[]);
 void putiGraphicsLcd(DisplayContext * displayContext, uint32_t x);
+void putFishGraphicsLcd(DisplayContext * displayContext);
 
 #endif
 

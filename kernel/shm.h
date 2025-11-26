@@ -14,6 +14,7 @@ typedef struct _shm
     int shared;
     int temperature;
     int turbidity;
+    int presses;
 }shm;
 
 
