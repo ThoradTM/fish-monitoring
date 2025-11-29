@@ -21,7 +21,7 @@
 #define YELLOW_LED PORTA,3 // off-board yellow LED
 #define GREEN_LED  PORTA,4 // off-board green LED
 
-
+#define PUSH_BUTTON 4
 
 
 void initHw(void)
@@ -33,6 +33,8 @@ void initHw(void)
     initUart0();
     initPain();
     initPwm();
+
+    selectPinDigitalInput(PORTF, PUSH_BUTTON);
 
     SYSCTL_RCGCTIMER_R |= (SYSCTL_RCGCTIMER_R1 | SYSCTL_RCGCTIMER_R5);
 

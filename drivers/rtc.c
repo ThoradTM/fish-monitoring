@@ -55,10 +55,6 @@ static uint32_t DateTimeToSeconds(const RTC_DateTime *dt) {
     return seconds;
 }
 
-static void SecondsToDateTime(uint32_t seconds, RTC_DateTime *dt) {
-    uint32_t days = seconds / 86400UL;
-    uint32_t remaining = seconds % 86400UL;
-    uint16_t year = 1970;
     uint8_t month = 1;
     uint16_t daysInYear;
     

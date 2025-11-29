@@ -6,6 +6,19 @@
 #include "../drivers/uart0.h"
 #include "../libraries/pwm.h"
 #include "../libraries/wait.h"
+#include "../libraries/tm4c123gh6pm.h"
+#include "tasks.h"
+#include <stdint.h>
+#include "../drivers/rtc.h"
+#include "../drivers/gpio.h"
+
+#define PUSH_BUTTON 4
+
+typedef struct savedVars
+{
+	int x;
+	int page;
+}savedVars;
 
 
 // Stup port to 
@@ -24,94 +37,144 @@ void initDisplay(DisplayContext * myDisplay)
 
 typedef enum states
 {
+	SCREENSAVER,
 	DISPLAY,
-	SETTINGS,
-	SCREENSAVER
+	TIME,
+	SETTINGS
 }states;
 
 void displayTask(DisplayContext * lcdHandler, shm * shmHandle)
 {
 	clearGraphicsLcd(lcdHandler);
-	setGraphicsLcdTextPosition(lcdHandler, 20, 2);                 // Set text position
-	putsGraphicsLcd(lcdHandler, "Task Running");                   // Print "Task Running" at the set position
-	setGraphicsLcdTextPosition(lcdHandler, 20, 3);                 // Set text position
+	setGraphicsLcdTextPosition(lcdHandler, 0, 0);                 // Set text position
+	putsGraphicsLcd(lcdHandler, "Turbidity: ");                   // Print "Task Running" at the set position
+	lock(resource);
+
+	putiGraphicsLcd(lcdHandler, shmHandle->turbidity);
+	unlock(resource);
+	setGraphicsLcdTextPosition(lcdHandler, 0, 1);                 // Set text position
 	putsGraphicsLcd(lcdHandler, "Temperature: ");
 	
 	lock(resource);
 
 	putiGraphicsLcd(lcdHandler, shmHandle->temperature);
 	unlock(resource);
-
-	sleep(100);
 }
 
+void timeTask(DisplayContext * lcdHandler)
+{
+	RTC_DateTime time;
+	RTC_GetDateTime(&time);
+
+	clearGraphicsLcd(lcdHandler);
+	setGraphicsLcdTextPosition(lcdHandler, 10, 0);                 // Set text position
+	putsGraphicsLcd(lcdHandler, "Time: ");                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 1);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.seconds);                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 2);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.minutes);                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 3);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.hours);                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 4);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.day);                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 5);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.month);                   // Print "Task Running" at the set position
+	setGraphicsLcdTextPosition(lcdHandler, 10, 6);                 // Set text position
+	putiGraphicsLcd(lcdHandler, time.year);                   // Print "Task Running" at the set position
+}
 
 void settingsTask(DisplayContext * lcdHandler)
 {
 
 }
 
-void screensaverTask(DisplayContext * lcdHandler)
+void screensaverTask(DisplayContext * lcdHandler, savedVars * passthrough)
 {
-
+	if(passthrough->page > 5)
+		passthrough->page = 0;
+	if(passthrough->x > 100)
+		passthrough->x = 0;
+	passthrough->x += 5;
+	passthrough->page++;
+	clearGraphicsLcd(lcdHandler);
+	setGraphicsLcdTextPosition(lcdHandler, passthrough->x, passthrough->page);                 // Set text position
+	putFishGraphicsLcd(lcdHandler);                   // Print "Task Running" at the set position
 }
 
-void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHandler)
+void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHandler, savedVars * passthrough)
 {
 	switch(state)
 	{
-		case DISPLAY: 
-			displayTask(lcdHandler, shmHandle);
+		case SCREENSAVER: 
+			screensaverTask(lcdHandler, passthrough);
 			break;
 		
+		case DISPLAY:
+			displayTask(lcdHandler,shmHandle);
+			break;
+		
+		case TIME:
+			timeTask(lcdHandler);
+			break;
+
 		case SETTINGS:
 			settingsTask(lcdHandler);
-			break;
-		
-		case SCREENSAVER:
-			screensaverTask(lcdHandler);
 			break;
 	}
 }
 
-states changeState(states state)
-{
-	return DISPLAY;
-}
+
+// To do:
+// Set hourly feeding interval
 
 void doScheduledTask()
 {
-	servoSlow();
-	TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
+	// PWM0_0_CMPA_R = 4000;
+	//servoSlow();
+	//TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
 }
 
 void consumerLoop()
 {
 	DisplayContext myDisplay;
+	savedVars passthrough;
     DisplayContext * lcdHandler = &myDisplay;
     initDisplay(lcdHandler);
 
 	shmPerms();
     shm * shmHandle = getShmHandle();
 
-	states state = DISPLAY;
+	states state = SCREENSAVER;
 
-	wait(keyReleased);
-	buttons = 0;
-	while (buttons == 0)
-	{
-		buttons = readPbs();
-		yield();
-	}
-	post(keyPressed);
-	
+
+
 	while(1)
 	{
-		sleep(1000);
-		state = changeState(state);
-		consumerStateMachine(state, shmHandle, lcdHandler);
+		// sleep(1000);
+		//uint8_t buttons;
 
-		// Placeholder to check if its time to do a task
+        //buttons = getPinValue(PORTF, PUSH_BUTTON);
+		// if(shmHandle->presses > 0)
+		// {
+		// 	//sleep(1000);
+		// 	state++;
+		// 	if(state > 3)
+		// 		state = SCREENSAVER;
+		// 	shmHandle->presses--;
+		// }
+		// sleep(1000);
+		
+        //buttons = getPinValue(PORTF, PUSH_BUTTON);
+		sleep(1000);
+		if(getPinValue(PORTF, PUSH_BUTTON))
+		{
+			state++;
+			if(state > 3)
+				state = SCREENSAVER;
+			//shmHandle->presses--;
+		}
+		consumerStateMachine(state, shmHandle, lcdHandler, &passthrough);
+				// Placeholder to check if its time to do a task
 		doScheduledTask();
 	}
 }

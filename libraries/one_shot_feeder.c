@@ -7,8 +7,9 @@
 
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
-#include "pain.h"
-#include "pir.h"
+#include "../drivers/pain.h"
+#include "one_shot_feeder.h"
+#include "pwm.h"
 #define PIR_BB     (*((volatile uint32_t *)(0x42000000 + (0x400053FC-0x40000000)*32 + 4*4)))
 
 void initPir(){

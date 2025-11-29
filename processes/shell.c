@@ -13,6 +13,7 @@
 #include "../drivers/uart0.h"
 #include "../drivers/pain.h"
 #include "../drivers/gpio.h"
+#include "../kernel/shm.h"
 
 
 char * procs[2] = {"hello", "world"};
@@ -60,6 +61,9 @@ void shell(){
     USER_DATA data;
     messenger handler;
     putsUart0("\x1B[38;5;117m\nShell: \x1B[0m");
+    shmPerms();
+    shm * shmHandle = getShmHandle();
+    shmHandle->presses = 0;
     while(true){
         data.fieldCount = 0;
         getStringUart(&data);
@@ -111,6 +115,9 @@ void shell(){
         }
         else if(isCommand(&data, "reboot", 1)){
             reboot();
+        }
+        else if(isCommand(&data, "push", 1)){
+            shmHandle->presses++;
         }
         else if(isCommand(&data, "ipcs", 1)){
             uint8_t i;

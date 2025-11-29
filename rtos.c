@@ -37,6 +37,8 @@
 #include "processes/display.h"
 #include "processes/temperature.h"
 
+#include "drivers/rtc.h"
+
 
 //-----------------------------------------------------------------------------
 // Main
@@ -52,7 +54,19 @@ int main(void)
     bool ok;
 //    Initialize hardware
     initHw();
+    RTC_Init();
     tempInit();
+
+    RTC_DateTime time_init;
+
+    time_init.seconds = 0;
+    time_init.minutes = 5;
+    time_init.hours = 2;
+    time_init.day = 26;
+    time_init.month = 11;
+    time_init.year = 2025;
+
+    RTC_SetDateTime(&time_init);
 
 //    initWatchdog();
 //    Setup UART0 baud rate
@@ -98,7 +112,7 @@ int main(void)
 //    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
 //    ok &= createThread(oneshot, "OneShot", 2, 1024);
 //    ok &= createThread(readKeys, "ReadKeys", 6, 1024);
-    ok &= createThread(debounce, "Debounce", 5, 512);
+//    ok &= createThread(debounce, "Debounce", 5, 512);
 //    ok &= createThread(important, "Important", 0, 1024);
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
 //    ok &= createThread(errant, "Errant", 6, 1024);

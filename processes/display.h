@@ -15,9 +15,13 @@
 // Subroutines
 //-----------------------------------------------------------------------------
 
+#include <stdint.h>
+
 void initDisplay();
 
 void consumerLoop();
+
+uint8_t readPbs();
 
 
 #endif
