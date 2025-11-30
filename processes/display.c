@@ -19,7 +19,12 @@ typedef struct savedVars
 {
 	int x;
 	int page;
-	int buffer[100];
+	int bufferTemp[100];
+	int bufferTurb[100];
+	int localPresses;
+	int plotMode;
+	int feederMode;
+	int feedingAmounts;
 }savedVars;
 
 const int varMax = 2047;
@@ -32,40 +37,42 @@ void drawPlot(DisplayContext * displayContext, savedVars * passthrough)
    // clear graphics area
    drawGraphicsLcdRectangle(displayContext, 0, 0, 104, 64, CLEAR);
 
-//    // draw plant output (y)
-//    if (displayY)
-//    {
-//        // dashed line if in step mode
-//        if (stepMode)
-//        {
-//            y = ((uint32_t)yStep1 * 64) / displayYMax;
-//            for (x = 0; x < CAPTURE_SIZE; x++)
-//            if (x & 4)
-//                drawGraphicsLcdPixel(displayContext, x, y, SET);
-//            y = ((long)yStep2 * 64) / displayYMax;
-//            for (x = 0; x < CAPTURE_SIZE; x++)
-//            if (x & 4)
-//                drawGraphicsLcdPixel(displayContext, x, y, SET);
-//        }
-//        setGraphicsLcdTextPosition(displayContext, 90, 7);
-//        putcGraphicsLcd(displayContext, 'y');
-//        for (x = 0; x < CAPTURE_SIZE; x++)
-//        {
-//            yScaled = captureBufferY[x];
-//            yScaled = (yScaled * 64) / displayYMax;
-//            if (yScaled > 63) yScaled = 63;
-//                drawGraphicsLcdPixel(displayContext, x, 63 - yScaled, SET);
-//        }
-//    }
+   if(passthrough->localPresses > 0)
+   {
+		if(passthrough->plotMode)
+		{
+			passthrough->plotMode = 0;
+		}
+		else
+		{
+		 	passthrough->plotMode = 1;
+		}
+		passthrough->localPresses--;
+   }
 
+   if (passthrough->plotMode)
+   {
+	setGraphicsLcdTextPosition(displayContext, 84, 7);
+	putsGraphicsLcd(displayContext, "Turb");
+	for (x = 0; x < CAPTURE_SIZE; x++)
+	{
+		uScaled = (passthrough->bufferTurb[x]);
+		uScaled = (uScaled * 32/ varMax) - 32;
+		if (uScaled > 32)
+			uScaled = 32;
+		if (uScaled < -31)
+			uScaled = -31;
+		drawGraphicsLcdPixel(displayContext, x, 32 - uScaled, SET);
+	}
+   }
    // draw plant input (u)
-//    if (displayU)
-//    {
+   else
+   {
        setGraphicsLcdTextPosition(displayContext, 84, 7);
        putsGraphicsLcd(displayContext, "Temp");
        for (x = 0; x < CAPTURE_SIZE; x++)
        {
-           uScaled = (passthrough->buffer[x]);
+           uScaled = (passthrough->bufferTemp[x]);
            uScaled = (uScaled * 32/ varMax) - 32;
            if (uScaled > 32)
                uScaled = 32;
@@ -73,7 +80,7 @@ void drawPlot(DisplayContext * displayContext, savedVars * passthrough)
                uScaled = -31;
            drawGraphicsLcdPixel(displayContext, x, 32 - uScaled, SET);
        }
-//}
+	}
 }
 
 
@@ -140,12 +147,36 @@ void timeTask(DisplayContext * lcdHandler)
 	putiGraphicsLcd(lcdHandler, time.year);                   // Print "Task Running" at the set position
 }
 
-void settingsTask(DisplayContext * lcdHandler)
+
+
+void settingsTask(DisplayContext * lcdHandler, savedVars * passthrough)
 {
 	clearGraphicsLcd(lcdHandler);
 	setGraphicsLcdTextPosition(lcdHandler, 10, 0);                 // Set text position
-	putsGraphicsLcd(lcdHandler, "Settings: ");    
+	putsGraphicsLcd(lcdHandler, "Feeding Schedule: ");
+	setGraphicsLcdTextPosition(lcdHandler, 10, 1);                 // Set text position
 
+
+	if(passthrough->localPresses > 0)
+    {
+		passthrough->feederMode++;
+		if(passthrough->feederMode > 2)
+			passthrough->feederMode = 0;
+		passthrough->localPresses--;
+    }
+
+	switch(passthrough->feederMode)
+	{
+		case 0:
+			putsGraphicsLcd(lcdHandler, "Twice a day");
+			break;
+		case 1:
+			putsGraphicsLcd(lcdHandler, "Once a day");
+			break;
+		case 2:
+			putsGraphicsLcd(lcdHandler, "Every other day");
+			break;
+	}
 }
 
 void plotTask(DisplayContext * lcdHandler, savedVars * passthrough)
@@ -191,7 +222,7 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 			break;
 
 		case SETTINGS:
-			settingsTask(lcdHandler);
+			settingsTask(lcdHandler, passthrough);
 			break;
 	}
 }
@@ -200,11 +231,18 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 // To do:
 // Set hourly feeding interval
 
-void doScheduledTask()
+void doFeedTask(savedVars * passthrough)
 {
 	// PWM0_0_CMPA_R = 4000;
 	//servoSlow();
 	//TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
+	int i;
+	for(i = 0; i < passthrough->feedingAmounts; i++)
+	{
+		setPinValue(PORTC, 6, 1);
+		sleep(1000);
+		setPinValue(PORTC, 6, 0);
+	}
 }
 
 void turbidityAlarm(shm * shmHandle)
@@ -228,6 +266,11 @@ void turbidityAlarm(shm * shmHandle)
 	}
 }
 
+#define SIX_HOURS 30
+#define DAY 60
+#define TWO_DAYS 90
+
+
 void consumerLoop()
 {
 	DisplayContext myDisplay;
@@ -235,12 +278,21 @@ void consumerLoop()
     DisplayContext * lcdHandler = &myDisplay;
     initDisplay(lcdHandler);
 
+	int systemSeconds = 0;
+	int lastSystemSeconds = 0;
+	int feedingTime = 0;
+
 
 	shmPerms();
     shm * shmHandle = getShmHandle();
 
 	passthrough.x = 0;
 	passthrough.page = 0;
+
+	passthrough.localPresses = 0;
+	passthrough.feederMode = 0;
+	passthrough.plotMode = 0;
+	passthrough.feedingAmounts = 0;
 
 	states state = SCREENSAVER;
 
@@ -250,6 +302,10 @@ void consumerLoop()
 
 	while(1)
 	{
+		systemSeconds = RTC_GetSeconds();
+		//initGraphicsLcd(&myDisplay);                   // Initialize the graphics LCD hardware and state
+		//clearGraphicsLcd(&myDisplay);
+		//setGraphicsLcdTextPosition(&myDisplay, 0, 0);
 		// sleep(1000);
 		//uint8_t buttons;
 
@@ -269,7 +325,12 @@ void consumerLoop()
 		i++;
 		if(i == 100)
 			i = 0;
-		passthrough.buffer[i] = shmHandle->temperature;
+		passthrough.bufferTemp[i] = shmHandle->temperature;
+		passthrough.bufferTurb[i] = shmHandle->turbidity;
+
+		passthrough.localPresses = shmHandle->presses2; 
+
+		passthrough.feedingAmounts = shmHandle->feedingAmounts;
 
 		if(shmHandle->presses > 0)
 		{
@@ -281,6 +342,37 @@ void consumerLoop()
 		consumerStateMachine(state, shmHandle, lcdHandler, &passthrough);
 				// Placeholder to check if its time to do a task
 		turbidityAlarm(shmHandle);
-		//doScheduledTask();
+
+		switch(passthrough.feederMode)
+		{
+			case 0:
+				feedingTime = lastSystemSeconds + SIX_HOURS;
+				if(systemSeconds > feedingTime)
+				{
+					doFeedTask(&passthrough);
+					lastSystemSeconds = systemSeconds;
+				}
+				break;
+			case 1:
+				feedingTime = lastSystemSeconds + DAY;
+				if(systemSeconds > feedingTime)
+				{
+					doFeedTask(&passthrough);
+					lastSystemSeconds = systemSeconds;
+				}
+				break;
+			case 2:
+				feedingTime = lastSystemSeconds + TWO_DAYS;
+				if(systemSeconds > feedingTime)
+				{
+					doFeedTask(&passthrough);
+					lastSystemSeconds = systemSeconds;
+				}
+				break;
+		}
+
+		shmHandle->presses2 = passthrough.localPresses;
+
+		//doFeedTask(&passthrough);
 	}
 }

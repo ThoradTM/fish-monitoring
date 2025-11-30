@@ -15,6 +15,8 @@ typedef struct _shm
     int temperature;
     int turbidity;
     int presses;
+    int presses2;
+    int feedingAmounts;
 }shm;
 
 

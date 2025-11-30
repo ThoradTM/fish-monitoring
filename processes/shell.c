@@ -64,6 +64,8 @@ void shell(){
     shmPerms();
     shm * shmHandle = getShmHandle();
     shmHandle->presses = 0;
+    shmHandle->presses2 = 0;
+    shmHandle->feedingAmounts = 1;
     while(true){
         data.fieldCount = 0;
         getStringUart(&data);
@@ -118,6 +120,12 @@ void shell(){
         }
         else if(isCommand(&data, "push", 1)){
             shmHandle->presses++;
+        }
+        else if(isCommand(&data, "pushmode", 1)){
+            shmHandle->presses2++;
+        }
+        else if(isCommand(&data, "feedings", 2)){
+            shmHandle->feedingAmounts = getFieldInteger(&data, 2);
         }
         else if(isCommand(&data, "ipcs", 1)){
             uint8_t i;
