@@ -13,12 +13,68 @@
 #include "../drivers/gpio.h"
 
 #define PUSH_BUTTON 4
+#define CAPTURE_SIZE 100
 
 typedef struct savedVars
 {
 	int x;
 	int page;
+	int buffer[100];
 }savedVars;
+
+const int varMax = 2047;
+
+void drawPlot(DisplayContext * displayContext, savedVars * passthrough)
+{
+   uint8_t x;
+//   uint32_t y, yScaled;
+   int32_t uScaled;
+   // clear graphics area
+   drawGraphicsLcdRectangle(displayContext, 0, 0, 104, 64, CLEAR);
+
+//    // draw plant output (y)
+//    if (displayY)
+//    {
+//        // dashed line if in step mode
+//        if (stepMode)
+//        {
+//            y = ((uint32_t)yStep1 * 64) / displayYMax;
+//            for (x = 0; x < CAPTURE_SIZE; x++)
+//            if (x & 4)
+//                drawGraphicsLcdPixel(displayContext, x, y, SET);
+//            y = ((long)yStep2 * 64) / displayYMax;
+//            for (x = 0; x < CAPTURE_SIZE; x++)
+//            if (x & 4)
+//                drawGraphicsLcdPixel(displayContext, x, y, SET);
+//        }
+//        setGraphicsLcdTextPosition(displayContext, 90, 7);
+//        putcGraphicsLcd(displayContext, 'y');
+//        for (x = 0; x < CAPTURE_SIZE; x++)
+//        {
+//            yScaled = captureBufferY[x];
+//            yScaled = (yScaled * 64) / displayYMax;
+//            if (yScaled > 63) yScaled = 63;
+//                drawGraphicsLcdPixel(displayContext, x, 63 - yScaled, SET);
+//        }
+//    }
+
+   // draw plant input (u)
+//    if (displayU)
+//    {
+       setGraphicsLcdTextPosition(displayContext, 84, 7);
+       putsGraphicsLcd(displayContext, "Temp");
+       for (x = 0; x < CAPTURE_SIZE; x++)
+       {
+           uScaled = (passthrough->buffer[x]);
+           uScaled = (uScaled * 32/ varMax) - 32;
+           if (uScaled > 32)
+               uScaled = 32;
+           if (uScaled < -31)
+               uScaled = -31;
+           drawGraphicsLcdPixel(displayContext, x, 32 - uScaled, SET);
+       }
+//}
+}
 
 
 // Stup port to 
@@ -40,6 +96,7 @@ typedef enum states
 	SCREENSAVER,
 	DISPLAY,
 	TIME,
+	PLOT,
 	SETTINGS
 }states;
 
@@ -85,7 +142,19 @@ void timeTask(DisplayContext * lcdHandler)
 
 void settingsTask(DisplayContext * lcdHandler)
 {
+	clearGraphicsLcd(lcdHandler);
+	setGraphicsLcdTextPosition(lcdHandler, 10, 0);                 // Set text position
+	putsGraphicsLcd(lcdHandler, "Settings: ");    
 
+}
+
+void plotTask(DisplayContext * lcdHandler, savedVars * passthrough)
+{
+	clearGraphicsLcd(lcdHandler);
+	setGraphicsLcdTextPosition(lcdHandler, 10, 0);                 // Set text position
+	putsGraphicsLcd(lcdHandler, "PlotTask: ");   
+
+	drawPlot(lcdHandler, passthrough); 
 }
 
 void screensaverTask(DisplayContext * lcdHandler, savedVars * passthrough)
@@ -115,6 +184,10 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 		
 		case TIME:
 			timeTask(lcdHandler);
+			break;
+
+		case PLOT:
+			plotTask(lcdHandler, passthrough);
 			break;
 
 		case SETTINGS:
@@ -162,6 +235,7 @@ void consumerLoop()
     DisplayContext * lcdHandler = &myDisplay;
     initDisplay(lcdHandler);
 
+
 	shmPerms();
     shm * shmHandle = getShmHandle();
 
@@ -170,7 +244,7 @@ void consumerLoop()
 
 	states state = SCREENSAVER;
 
-
+	int i = 0;
 
 
 
@@ -192,10 +266,15 @@ void consumerLoop()
 		
         //buttons = getPinValue(PORTF, PUSH_BUTTON);
 		sleep(1000);
+		i++;
+		if(i == 100)
+			i = 0;
+		passthrough.buffer[i] = shmHandle->temperature;
+
 		if(shmHandle->presses > 0)
 		{
 			state++;
-			if(state > 3)
+			if(state > 4)
 				state = SCREENSAVER;
 			shmHandle->presses--;
 		}
