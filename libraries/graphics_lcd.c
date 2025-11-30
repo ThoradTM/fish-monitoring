@@ -330,9 +330,9 @@ void putFishGraphicsLcd(DisplayContext * displayContext)
 {
     uint8_t i, j, val;
 
-    for(j = 0; j < 5; j++)
+    for(j = 0; j < 4; j++)
     {
-        for (i = 0; i < 5; i++)
+        for (i = 0; i < 4; i++)
         {
             val = fish_bitmap[j][i];
             sendGraphicsLcdData(val);
@@ -383,6 +383,25 @@ void putiGraphicsLcd(DisplayContext * displayContext, uint32_t x)
     while (integer[i] != '\0')
         putcGraphicsLcd(displayContext, integer[i++]);
 }
+
+void putTempGraphicsLcd(DisplayContext * displayContext, uint32_t x)
+{
+    char integer[11];
+    integer[10] = 0;
+    uint8_t i = 9;
+    integer[i] = (x % 10) + 48;
+    x /= 10;
+    i--;
+    while(x){
+        integer[i] = (x % 10) + 48;
+        x /= 10;
+        i--;
+    }
+    i++;
+    while (integer[i] != '\0')
+        putcGraphicsLcd(displayContext, integer[i++]);
+}
+
 
 
 //void drawMenu()

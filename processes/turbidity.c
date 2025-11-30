@@ -7,10 +7,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "../kernel/kernel.h"     // sleep()
-#include "../dependencies/wait.h" // waitMicrosecond()
+#include "../libraries/wait.h" // waitMicrosecond()
 #include "../drivers/uart0.h"     // putsUart0()
 #include "../drivers/gpio.h"      // enablePort(), selectPinAnalogInput()
-#include "../dependencies/tm4c123gh6pm.h"
+#include "../libraries/tm4c123gh6pm.h"
+#include "../kernel/shm.h"
 
 #ifndef putuart
 #define putuart putsUart0
@@ -54,15 +55,14 @@ void turbidityTask(void)
 {
     initTurbidity();
 
+    shmPerms();
+
+    shm * sharedSpace = getShmHandle();
+
     while (true)
     {
-        // Debug output
-        putsUart0("Analog Value: ");
+        sharedSpace->turbidity = (uint32_t)readTurbidityRaw();
 
-        // Read raw ADC (unused for now)
-        putiUart0((uint32_t)readTurbidityRaw());
-        putcUart0("\n");
-        // Sleep for 1000 ms
         sleep(1000);
     }
 }

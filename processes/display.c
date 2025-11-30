@@ -134,6 +134,27 @@ void doScheduledTask()
 	//TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
 }
 
+void turbidityAlarm(shm * shmHandle)
+{
+	if(shmHandle->turbidity < 2500)
+	{
+		if(getPinValue(PORTC, 6))
+		{
+			setPinValue(PORTC, 6, 0);
+		}
+		else 
+		{
+			setPinValue(PORTC, 6, 1);
+		}
+	}
+	else 
+	{
+		if(getPinValue(PORTC, 6))
+			setPinValue(PORTC, 6, 0);
+		
+	}
+}
+
 void consumerLoop()
 {
 	DisplayContext myDisplay;
@@ -144,7 +165,12 @@ void consumerLoop()
 	shmPerms();
     shm * shmHandle = getShmHandle();
 
+	passthrough.x = 0;
+	passthrough.page = 0;
+
 	states state = SCREENSAVER;
+
+
 
 
 
@@ -166,15 +192,16 @@ void consumerLoop()
 		
         //buttons = getPinValue(PORTF, PUSH_BUTTON);
 		sleep(1000);
-		if(getPinValue(PORTF, PUSH_BUTTON))
+		if(shmHandle->presses > 0)
 		{
 			state++;
 			if(state > 3)
 				state = SCREENSAVER;
-			//shmHandle->presses--;
+			shmHandle->presses--;
 		}
 		consumerStateMachine(state, shmHandle, lcdHandler, &passthrough);
 				// Placeholder to check if its time to do a task
-		doScheduledTask();
+		turbidityAlarm(shmHandle);
+		//doScheduledTask();
 	}
 }

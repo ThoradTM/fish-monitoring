@@ -126,7 +126,7 @@ void flash4Hz(void)
 {
     while(true)
     {
-       // setPinValue(GREEN_LED, !getPinValue(GREEN_LED));
+        // setPinValue(GREEN_LED, !getPinValue(GREEN_LED));
         sleep(125);
     }
 }
@@ -198,21 +198,22 @@ void readKeys(void)
 
 void debounce(void)
 {
+    shmPerms();
+    shm * shmHandle = getShmHandle();
     uint8_t count;
     while(true)
     {
-        if(!getPinValue(PORTF, PUSH_BUTTON))
-        wait(keyPressed);
+        while(getPinValue(PORTF, PUSH_BUTTON) != 0);
         count = 10;
         while (count != 0)
         {
             sleep(10);
-            if (getPinValue(PORTF, PUSH_BUTTON) == 0)
+            if (getPinValue(PORTF, PUSH_BUTTON) != 0)
                 count--;
             else
                 count = 10;
         }
-        post(keyReleased);
+        shmHandle->presses++;
     }
 }
 

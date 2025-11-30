@@ -21,8 +21,7 @@
 #define YELLOW_LED PORTA,3 // off-board yellow LED
 #define GREEN_LED  PORTA,4 // off-board green LED
 
-#define PUSH_BUTTON 4
-
+#define PUSH_BUTTON PORTF,4
 
 void initHw(void)
 {
@@ -33,8 +32,6 @@ void initHw(void)
     initUart0();
     initPain();
     initPwm();
-
-    selectPinDigitalInput(PORTF, PUSH_BUTTON);
 
     SYSCTL_RCGCTIMER_R |= (SYSCTL_RCGCTIMER_R1 | SYSCTL_RCGCTIMER_R5);
 
@@ -56,6 +53,11 @@ void initHw(void)
     enablePort(PORTC);
     enablePort(PORTB);
 
+    enablePort(PORTF);
+
+    selectPinDigitalInput(PUSH_BUTTON);
+    enablePinPullup(PUSH_BUTTON);
+
     setPinCommitControl(PORTD, 7);
 
 
@@ -72,12 +74,11 @@ void initHw(void)
     selectPinPushPullOutput(PORTA, 3);
     selectPinPushPullOutput(PORTA, 4);
     selectPinPushPullOutput(PORTE, 0);
-    selectPinPushPullOutput(PORTF, 2);
 
     enablePinPullup(PORTD, 7);
     enablePinPullup(PORTD, 6);
     enablePinPullup(PORTC, 7);
-    enablePinPullup(PORTC, 6);
+    selectPinPushPullOutput(PORTC, 6);
     enablePinPullup(PORTC, 5);
     enablePinPullup(PORTC, 4);
 
