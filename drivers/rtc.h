@@ -16,16 +16,14 @@ typedef struct {
     uint8_t day;        // 1-31
     uint8_t month;      // 1-12
     uint16_t year;      // Full year (e.g., 2025)
-} RTC_DateTime;
+} RTCDateTime;
 
 /* Function Prototypes */
-void RTC_Init(void);
-void RTC_SetDateTime(const RTC_DateTime *dt);
-void RTC_GetDateTime(RTC_DateTime *dt);
+void RTCInit(void);
+void RTCSetDateTime(const RTCDateTime *dt);
+void RTCGetDateTime(RTCDateTime *dt);
 
-uint32_t RTC_GetSeconds(void);
-void RTC_SetAlarm(uint32_t seconds);
-void RTC_EnableAlarmInterrupt(void);
-void RTC_DisableAlarmInterrupt(void);
+uint32_t RTCGetSeconds(void);
 
 #endif /* RTC_H */
+

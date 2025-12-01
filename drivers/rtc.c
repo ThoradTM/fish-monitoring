@@ -30,7 +30,7 @@ static uint8_t GetDaysInMonth(uint8_t month, uint16_t year) {
     return days[month - 1];
 }
 
-static uint32_t DateTimeToSeconds(const RTC_DateTime *dt) {
+static uint32_t DateTimeToSeconds(const RTCDateTime *dt) {
     uint32_t seconds = 0;
     uint16_t year;
     uint8_t month;
@@ -55,7 +55,7 @@ static uint32_t DateTimeToSeconds(const RTC_DateTime *dt) {
     return seconds;
 }
 
-static void SecondsToDateTime(uint32_t seconds, RTC_DateTime *dt) {
+static void SecondsToDateTime(uint32_t seconds, RTCDateTime *dt) {
     uint32_t days = seconds / 86400UL;
     uint32_t remaining = seconds % 86400UL;
     uint16_t year = 1970;
@@ -89,7 +89,7 @@ static void WaitForWriteComplete(void) {
     while ((HIB_CTL & HIB_CTL_WRC) == 0) {}
 }
 
-void RTC_Init(void) {
+void RTCInit(void) {
     SYSCTL_RCGCHIB |= 0x01;
     
     while ((SYSCTL_RCGCHIB & 0x01) == 0) {}
@@ -104,42 +104,17 @@ void RTC_Init(void) {
     WaitForWriteComplete();
 }
 
-void RTC_SetDateTime(const RTC_DateTime *dt) {
+void RTCSetDateTime(const RTCDateTime *dt) {
     uint32_t seconds = DateTimeToSeconds(dt);
     HIB_RTCLD = seconds;
     WaitForWriteComplete();
 }
 
-void RTC_GetDateTime(RTC_DateTime *dt) {
+void RTCGetDateTime(RTCDateTime *dt) {
     uint32_t seconds = HIB_RTCC;
     SecondsToDateTime(seconds, dt);
 }
 
-uint32_t RTC_GetSeconds(void) {
+uint32_t RTCGetSeconds(void) {
     return HIB_RTCC;
-}
-
-void RTC_SetAlarm(uint32_t seconds) {
-    uint32_t currentSeconds = HIB_RTCC;
-    HIB_RTCM0 = currentSeconds + seconds;
-    WaitForWriteComplete();
-}
-
-void RTC_EnableAlarmInterrupt(void) {
-    HIB_IM |= HIB_IM_RTCALT0;
-    WaitForWriteComplete();
-    
-    NVIC_EN1_R |= (1 << (43 - 32));
-}
-
-void RTC_DisableAlarmInterrupt(void) {
-    HIB_IM &= ~HIB_IM_RTCALT0;
-    WaitForWriteComplete();
-}
-
-void Hibernate_Handler(void) {
-    HIB_IC = HIB_IM_RTCALT0;
-    WaitForWriteComplete();
-    
-    /* User code here - handle alarm event */
 }

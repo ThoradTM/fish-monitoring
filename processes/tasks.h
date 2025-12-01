@@ -31,6 +31,7 @@ void partOfLengthyFn(void);
 void lengthyFn(void);
 void readKeys(void);
 void debounce(void);
+void debounce2(void);
 void uncooperative(void);
 void errant(void);
 void important(void);

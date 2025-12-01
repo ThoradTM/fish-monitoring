@@ -241,6 +241,27 @@ void debounce(void)
     }
 }
 
+void debounce2(void)
+{
+    shmPerms();
+    shm * shmHandle = getShmHandle();
+    uint8_t count;
+    while(true)
+    {
+        while(getPinValue(PORTF, 0) != 0);
+        count = 10;
+        while (count != 0)
+        {
+            sleep(10);
+            if (getPinValue(PORTF, 0) != 0)
+                count--;
+            else
+                count = 10;
+        }
+        shmHandle->presses2++;
+    }
+}
+
 void uncooperative(void)
 {
     while(true)

@@ -54,10 +54,10 @@ int main(void)
     bool ok;
 //    Initialize hardware
     initHw();
-    RTC_Init();
+    RTCInit();
     tempInit();
 
-    RTC_DateTime time_init;
+    RTCDateTime time_init;
 
     time_init.seconds = 0;
     time_init.minutes = 5;
@@ -66,7 +66,7 @@ int main(void)
     time_init.month = 11;
     time_init.year = 2025;
 
-    RTC_SetDateTime(&time_init);
+    RTCSetDateTime(&time_init);
 
 //    initWatchdog();
 //    Setup UART0 baud rate
@@ -113,6 +113,7 @@ int main(void)
 //    ok &= createThread(oneshot, "OneShot", 2, 1024);
     ok &= createThread(doFeedTask, "doFeedTask", 0, 512);
     ok &= createThread(debounce, "Debounce", 6, 512);
+    ok &= createThread(debounce2, "Debounce2", 6, 512);
 //    ok &= createThread(important, "Important", 0, 1024);
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
 //    ok &= createThread(errant, "Errant", 6, 1024);

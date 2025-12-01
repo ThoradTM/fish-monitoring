@@ -127,8 +127,8 @@ void displayTask(DisplayContext * lcdHandler, shm * shmHandle)
 
 void timeTask(DisplayContext * lcdHandler)
 {
-	RTC_DateTime time;
-	RTC_GetDateTime(&time);
+	RTCDateTime time;
+	RTCGetDateTime(&time);
 
 	clearGraphicsLcd(lcdHandler);
 	setGraphicsLcdTextPosition(lcdHandler, 10, 0);                 // Set text position
@@ -229,7 +229,7 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 
 void turbidityAlarm(shm * shmHandle)
 {
-	if(shmHandle->turbidity < 2500)
+	if(shmHandle->turbidity < 700)
 	{
 		if(getPinValue(PORTC, 6))
 		{
@@ -284,7 +284,7 @@ void consumerLoop()
 
 	while(1)
 	{
-		systemSeconds = RTC_GetSeconds();
+		systemSeconds = RTCGetSeconds();
 		//initGraphicsLcd(&myDisplay);                   // Initialize the graphics LCD hardware and state
 		//clearGraphicsLcd(&myDisplay);
 		//setGraphicsLcdTextPosition(&myDisplay, 0, 0);

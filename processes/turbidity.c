@@ -12,6 +12,8 @@
 #include "../drivers/gpio.h"      // enablePort(), selectPinAnalogInput()
 #include "../libraries/tm4c123gh6pm.h"
 #include "../kernel/shm.h"
+#include "../kernel/servicecalls.h"
+#include "../libraries/pwm.h"
 
 #ifndef putuart
 #define putuart putsUart0
@@ -54,6 +56,8 @@ uint16_t readTurbidityRaw(void)
 void turbidityTask(void)
 {
     initTurbidity();
+    int j, sum;
+    uint32_t avgArray[10];
 
     shmPerms();
 
@@ -61,7 +65,18 @@ void turbidityTask(void)
 
     while (true)
     {
-        sharedSpace->turbidity = (uint32_t)readTurbidityRaw();
+        j++;
+        if (j >= 10)
+            j = 0;
+        sum -= avgArray[j];
+        avgArray[j] = (uint32_t)readTurbidityRaw();
+        sum += avgArray[j]; //sums all values
+
+
+
+        int avg = sum/10; //gets average value
+
+        sharedSpace->turbidity = avg;
 
         sleep(1000);
     }
