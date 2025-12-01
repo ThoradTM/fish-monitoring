@@ -57,7 +57,7 @@ void drawPlot(DisplayContext * displayContext, savedVars * passthrough)
 	for (x = 0; x < CAPTURE_SIZE; x++)
 	{
 		uScaled = (passthrough->bufferTurb[x]);
-		uScaled = (uScaled * 32/ varMax) - 32;
+		uScaled = (((uScaled - 300) * 2) * 32/ varMax);
 		if (uScaled > 32)
 			uScaled = 32;
 		if (uScaled < -31)
