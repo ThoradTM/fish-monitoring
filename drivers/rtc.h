@@ -11,7 +11,7 @@ typedef struct {
     uint8_t hours;      // 0-23
     uint8_t day;        // 1-31
     uint8_t month;      // 1-12
-    uint16_t year;      // Full year (e.g., 2025)
+    uint16_t year;      // Year
 } RTCDateTime;
 
 void RTCInit(void);
