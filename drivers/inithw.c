@@ -60,8 +60,10 @@ void initHw(void)
 
     setPinCommitControl(PORTD, 7);
 
+    setPinCommitControl(PORTF, 0);
 
-    selectPinDigitalInput(PORTD, 7);
+
+    selectPinDigitalInput(PORTF, 0);
     selectPinDigitalInput(PORTD, 7);
     selectPinDigitalInput(PORTD, 6);
     //selectPinDigitalInput(PORTC, 7);
@@ -74,6 +76,8 @@ void initHw(void)
     selectPinPushPullOutput(PORTA, 3);
     selectPinPushPullOutput(PORTA, 4);
     selectPinPushPullOutput(PORTE, 0);
+
+    enablePinPullup(PORTF, 0);
 
     enablePinPullup(PORTD, 7);
     enablePinPullup(PORTD, 6);

@@ -28,6 +28,7 @@
 #include "../drivers/gpio.h"
 #include "../drivers/uart0.h"
 #include "../drivers/clock.h"
+#include "../libraries/pwm.h"
 
 
 
@@ -129,6 +130,29 @@ void flash4Hz(void)
         // setPinValue(GREEN_LED, !getPinValue(GREEN_LED));
         sleep(125);
     }
+}
+
+void doFeedTask()
+{
+    shmPerms();
+    shm * shmHandle = getShmHandle();
+
+	int i;
+	while(1)
+	{
+        sleep(1000);
+        if(shmHandle->servoFlag)
+        {
+            for(i = 0; i < shmHandle->feedingAmounts; i++)
+            {
+                PWM0_0_CMPA_R = 4000;
+                sleep(180);
+                PWM0_0_CMPA_R = 3750;
+                sleep(1000);
+                shmHandle->servoFlag = 0;
+            }
+        }
+	}
 }
 
 void oneshot(void)

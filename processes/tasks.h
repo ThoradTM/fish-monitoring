@@ -23,6 +23,8 @@ void idle(void);
 void shmTestWriter();
 void shmTestReader();
 
+void doFeedTask();
+
 void flash4Hz(void);
 void oneshot(void);
 void partOfLengthyFn(void);

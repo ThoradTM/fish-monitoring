@@ -66,6 +66,7 @@ void shell(){
     shmHandle->presses = 0;
     shmHandle->presses2 = 0;
     shmHandle->feedingAmounts = 1;
+    shmHandle->servoFlag = 0;
     while(true){
         data.fieldCount = 0;
         getStringUart(&data);

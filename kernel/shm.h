@@ -17,6 +17,7 @@ typedef struct _shm
     int presses;
     int presses2;
     int feedingAmounts;
+    int servoFlag;
 }shm;
 
 

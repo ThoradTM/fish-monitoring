@@ -227,24 +227,6 @@ void consumerStateMachine(states state, shm * shmHandle, DisplayContext * lcdHan
 	}
 }
 
-
-// To do:
-// Set hourly feeding interval
-
-void doFeedTask(savedVars * passthrough)
-{
-	// PWM0_0_CMPA_R = 4000;
-	//servoSlow();
-	//TIMER5_CTL_R |= TIMER_CTL_TAEN;                  // turn-on timer
-	int i;
-	for(i = 0; i < passthrough->feedingAmounts; i++)
-	{
-		setPinValue(PORTC, 6, 1);
-		sleep(1000);
-		setPinValue(PORTC, 6, 0);
-	}
-}
-
 void turbidityAlarm(shm * shmHandle)
 {
 	if(shmHandle->turbidity < 2500)
@@ -266,9 +248,9 @@ void turbidityAlarm(shm * shmHandle)
 	}
 }
 
-#define SIX_HOURS 30
-#define DAY 60
-#define TWO_DAYS 90
+#define SIX_HOURS 5
+#define DAY 10
+#define TWO_DAYS 15
 
 
 void consumerLoop()
@@ -349,7 +331,7 @@ void consumerLoop()
 				feedingTime = lastSystemSeconds + SIX_HOURS;
 				if(systemSeconds > feedingTime)
 				{
-					doFeedTask(&passthrough);
+					shmHandle->servoFlag = 1;
 					lastSystemSeconds = systemSeconds;
 				}
 				break;
@@ -357,7 +339,7 @@ void consumerLoop()
 				feedingTime = lastSystemSeconds + DAY;
 				if(systemSeconds > feedingTime)
 				{
-					doFeedTask(&passthrough);
+					shmHandle->servoFlag = 1;
 					lastSystemSeconds = systemSeconds;
 				}
 				break;
@@ -365,12 +347,22 @@ void consumerLoop()
 				feedingTime = lastSystemSeconds + TWO_DAYS;
 				if(systemSeconds > feedingTime)
 				{
-					doFeedTask(&passthrough);
+					shmHandle->servoFlag = 1;
 					lastSystemSeconds = systemSeconds;
 				}
 				break;
 		}
 
+
+		// PWM0_0_CMPA_R = 4000;
+		// sleep(176);
+		// PWM0_0_CMPA_R = 3750;
+	// while(1)
+	// {
+	// 	servoSlow();
+	// 	sleep(176);
+	// 	servoStop();
+	// }
 		shmHandle->presses2 = passthrough.localPresses;
 
 		//doFeedTask(&passthrough);

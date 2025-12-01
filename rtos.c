@@ -111,7 +111,7 @@ int main(void)
 //    ok &= createThread(lengthyFn, "LengthyFn", 6, 1024);
 //    ok &= createThread(flash4Hz, "Flash4Hz", 4, 1024);
 //    ok &= createThread(oneshot, "OneShot", 2, 1024);
-//    ok &= createThread(readKeys, "ReadKeys", 6, 512);
+    ok &= createThread(doFeedTask, "doFeedTask", 0, 512);
     ok &= createThread(debounce, "Debounce", 6, 512);
 //    ok &= createThread(important, "Important", 0, 1024);
 //    ok &= createThread(uncooperative, "Uncoop", 6, 1024);
@@ -119,7 +119,7 @@ int main(void)
 
     ok &= createThread(turbidityTask, "Turbidity", 6, 512);
     ok &= createThread(consumerLoop, "Consumer Thread", 6, 4096);
-    ok &= createThread(tempTask, "Temperature", 0, 512);
+    ok &= createThread(tempTask, "Temperature", 3, 512);
     ok &= createThread(shell, "Shell", 6, 1024);
     ok &= createThread(restartShell, "RestartShell", 10, 512);
 
